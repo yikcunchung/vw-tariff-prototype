@@ -179,9 +179,6 @@ html { scroll-padding-top: 72px; }
 .tf-legal-org { color: var(--content-tertiary); }
 .tf-legal-sep { color: var(--content-primary); }
 .tf-legal a { color: var(--btn-primary); text-decoration: underline; }
-/* Keeps the Figma appearance now that Imprint is a <span> rather than a lying <a>.
-   No cursor:pointer — it must not advertise itself as a control it is not. */
-.tf-legal-imprint { color: var(--btn-primary); text-decoration: underline; }
 
 /* ── Section Container ── */
 .tf-container {
@@ -525,14 +522,14 @@ html { scroll-padding-top: 72px; }
   <main id="tf-main" tabindex="-1">
     <section class="tf-section" aria-labelledby="tf-h1">
 
-      <!-- Imprint is a <span>, not an <a>. It was <a href="#tf-main">, which pointed at
-           this page's own <main> — the link text promised an imprint and delivered the
-           top of the current page. SC 2.4.4 judges purpose from the link text, so it
-           passed as written, but a link whose destination contradicts its text is a
-           defect and an auditor could reasonably fail it. There is no imprint page in a
-           prototype, so the honest representation is non-interactive text, consistent
-           with the .topbar-tab items. Production must restore a real <a href>. -->
-      <p class="tf-legal"><span class="tf-legal-org">An offer from Elli AG</span><span class="tf-legal-sep">&nbsp;|&nbsp;</span><span class="tf-legal-imprint">Imprint</span></p>
+      <!-- Imprint stays an <a>. I briefly made it an underlined <span> to remove the
+           mismatch between its text and its href, but that traded one flag for a worse
+           one: WAVE then reported "Underlined text", i.e. link-styled text that is not
+           interactive — a false affordance for sighted users. A real <a> is also the
+           markup production will use, so the prototype should model it. The href is a
+           placeholder; SC 2.4.4 judges purpose from the link text and passes.
+           PRODUCTION: replace href="#tf-main" with the real imprint URL. -->
+      <p class="tf-legal"><span class="tf-legal-org">An offer from Elli AG</span><span class="tf-legal-sep">&nbsp;|&nbsp;</span><a href="#tf-main">Imprint</a></p>
 
       <div class="tf-container">
 
