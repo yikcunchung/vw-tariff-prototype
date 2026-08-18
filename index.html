@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+<meta name="description" content="Compare We Charge tariffs for charging your Volkswagen ID. model at home and across Europe.">
+<title>Volkswagen Charging Tariffs — We Charge</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Fonts (shared with the sibling simulators — topbar.css) ── */
+@font-face { font-family:'VW Head'; src:url('../range-simulator/site-01/assets/fonts/vwhead-light.woff2') format('woff2'); font-weight:300; font-style:normal; font-display:swap; }
+@font-face { font-family:'VW Head'; src:url('../range-simulator/site-01/assets/fonts/vwhead-regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:'VW Head'; src:url('../range-simulator/site-01/assets/fonts/vwhead-bold.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
+@font-face { font-family:'VW Text'; src:url('../range-simulator/site-01/assets/fonts/vwtext-regular.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:'VW Text'; src:url('../range-simulator/site-01/assets/fonts/vwtext-bold.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
+
+/* ════════════════════════════════════════════════════════════
+   TOKENS
+   Base block copied from range-simulator/index.html :root.
+   --border-input is the CORRECTED 3.35:1 value, not rgba(161,164,172,1).
+   Tariff tokens below are from get_variable_defs on node 6143:28455.
+════════════════════════════════════════════════════════════ */
+:root {
+  --bg: rgba(246,245,242,1);
+  --white: #fff;
+  --navy: rgba(27,34,54,1);
+  --navy-dark: rgba(41,48,67,1);
+  --label-blue: rgba(0,30,80,1);
+  --border-light: rgba(208,209,213,1);
+  --border-input: rgba(110,116,126,1);
+  --muted: rgba(96,101,116,1);
+  --tooltip-bg: rgba(49,56,74,1);
+  --font-text: 'VW Text','Inter',-apple-system,sans-serif;
+  --font-head: 'VW Head','Inter',-apple-system,sans-serif;
+
+  /* Figma variables (get_variable_defs 6143:28455) */
+  --content-primary: #1b2236;      /* content/primary   */
+  --content-secondary: #484e5f;    /* content/secondary */
+  --content-tertiary: #606574;     /* content/tertiary  */
+  --content-inverted: #ffffff;     /* content/inverted  */
+  --bg-tertiary: #ffffff;          /* background/tertiary */
+  --divider: #d0d1d5;              /* border/divider    */
+  --divider-alt: #dfe4e8;
+  --btn-primary: #293043;          /* button/primary/default   */
+  --btn-secondary: #001e50;        /* button/secondary/default */
+  --legalframe: #f08203;           /* border/legalframe */
+  --radius-card: 12px;             /* borderRadius/cardS */
+  --shadow-small: rgba(49,25,2,0.06); /* shadow/small #3119020f */
+  --s0100: 4px; --s0150: 8px;  --s0200: 12px; --s0250: 16px;
+  --s0300: 20px; --s0350: 24px; --s0400: 32px;
+
+  /* ── Responsive layout, derived from the Figma frame metadata ──
+     "1 col" page gutter: 31/37/64/80/107/120/133/160/213 across the
+     nine frames == 100vw/12 (max delta 0.4px).                        */
+  --pagepad: calc(100vw / 12);
+  /* tile gap per frame: 31 / 36 / 64 @<960, 40 @960, 52 @1280, 60 @1440, 40 @1600+ */
+  --tf-gap: calc(100vw / 12);
+  /* tiles per view: 1(+peek) <960 · 2 @960 · 3 @1280 · 4 @1600 */
+  --tf-tile: calc(100% - var(--tf-gap));
+  --tf-secpad: 32px;   /* Tariff frame padding-block: 32/56/72       */
+  --tf-stack: 24px;    /* Section Container gap: 24/40/52            */
+  --tf-topgap: 56px;   /* TopBar -> Tariff gap: 56/80/100/72         */
+  /* typography/Headline/400 (H3) is a DYNAMIC Figma token — resolved per
+     frame via get_variable_defs: 28 @375/440, 32 @768, 34 @960/1280/1440,
+     38 @1600/1920/2560. It drives the tile price, and is why the Figma
+     1600 tile is taller than the 1440 one. */
+  --type-h3: 28px;
+}
+@media (min-width: 768px)  { :root { --tf-secpad: 56px; --tf-stack: 40px; --tf-topgap: 80px;
+                                     --type-h3: 32px; } }
+@media (min-width: 960px)  { :root { --tf-gap: 40px; --tf-tile: calc((100% - var(--tf-gap)) / 2);
+                                     --type-h3: 34px; } }
+@media (min-width: 1280px) { :root { --tf-gap: 52px; --tf-tile: calc((100% - 2 * var(--tf-gap)) / 3); } }
+@media (min-width: 1440px) { :root { --tf-gap: 60px; } }
+@media (min-width: 1600px) { :root { --tf-gap: 40px; --tf-tile: calc((100% - 3 * var(--tf-gap)) / 4);
+                                     --tf-secpad: 72px; --tf-stack: 52px; --tf-topgap: 100px;
+                                     --type-h3: 38px; } }
+@media (min-width: 1920px) { :root { --tf-topgap: 72px; } }
+
+body {
+  font-family: var(--font-text);
+  background: var(--bg);
+  color: var(--navy);
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+}
+
+/* SC 2.4.11 — reserve clearance for the sticky 64px topbar */
+html { scroll-padding-top: 72px; }
+
+/* ════════════════════════════
+   TOPBAR — rules copied from range-simulator/index.html
+════════════════════════════ */
+#topbar {
+  background: white;
+  border-bottom: 1px solid var(--border-light);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 0;
+  height: 64px;
+  width: 100%;
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 10;
+  -webkit-font-smoothing: antialiased;
+  color: #293043;
+}
+.topbar-container {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+  padding: 0 4.16vw;
+  box-sizing: border-box;
+}
+.topbar-left { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+.topbar-logo-col { display: flex; align-items: center; gap: 20px; min-height: 40px; flex-shrink: 0; }
+.topbar-logo-col img { display: block; width: 32px; height: 32px; }
+.topbar-tabs-col { display: flex; align-items: center; min-height: 40px; }
+.topbar-tabs { display: flex; gap: 20px; align-items: center; flex-shrink: 0; }
+.topbar-tab {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 0; flex-shrink: 0;
+  font-family: 'VW Text', 'Inter', -apple-system, sans-serif;
+  font-weight: 700; font-style: normal;
+  font-size: 16px; line-height: 1.2;
+  color: #293043; white-space: nowrap;
+  word-break: break-word;
+}
+@media (max-width: 959px) { .topbar-tab { display: none; } }
+.topbar-actions-col {
+  display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: center;
+  min-height: 40px; flex-shrink: 0;
+}
+.topbar-actions { display: flex; gap: 16px; align-items: center; flex-shrink: 0; }
+@media (max-width: 959px) { .topbar-actions { gap: 12px; } }
+.topbar-dealer { display: flex; align-items: center; max-width: 150px; flex-shrink: 0; }
+.topbar-dealer-text {
+  font-family: 'VW Text', 'Inter', -apple-system, sans-serif;
+  font-weight: 400; font-style: normal;
+  font-size: 14px; line-height: 1.2;
+  color: #293043; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  flex: 1 0 0; min-width: 1px;
+}
+@media (max-width: 959px) { .topbar-dealer-text { display: none; } }
+.topbar-cta {
+  width: 32px; height: 32px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.topbar-cta img { width: 24px; height: 24px; display: block; flex-shrink: 0; }
+/* Burger — present in the mobile Figma TopBar (asset burger.svg, 24x16), <960 only */
+.topbar-burger { display: none; }
+.topbar-burger img { width: 24px; height: 16px; }
+@media (max-width: 959px) { .topbar-burger { display: flex; } }
+
+/* ════════════════════════════
+   PAGE / SECTION  (frame "Content" + frame "Tariff")
+════════════════════════════ */
+#content { background: var(--bg); padding-bottom: 40px; }
+
+.tf-section {
+  position: relative;
+  margin-top: var(--tf-topgap);
+  border-top: 2px solid var(--legalframe);
+  border-bottom: 2px solid var(--legalframe);
+  padding: var(--tf-secpad) var(--pagepad);
+}
+
+/* Legal-frame label straddling the top border.
+   Figma: x = 1 col, y = -12 from the border box  ->  left:0, top:-14 from the padding box */
+.tf-legal {
+  position: absolute; left: 0; top: -14px;
+  height: 24px; display: flex; align-items: center;
+  background: var(--bg); padding: 0 var(--s0150);
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 24px; white-space: nowrap; max-width: 100%; overflow: hidden;
+}
+.tf-legal-org { color: var(--content-tertiary); }
+.tf-legal-sep { color: var(--content-primary); }
+.tf-legal a { color: var(--btn-primary); text-decoration: underline; }
+
+/* ── Section Container ── */
+.tf-container {
+  display: flex; flex-direction: column;
+  align-items: center; gap: var(--tf-stack);
+}
+
+/* ── Copy ── */
+.tf-copy {
+  width: 100%; text-align: center;
+  display: flex; flex-direction: column; gap: var(--s0350);
+  color: var(--content-primary);
+  word-break: break-word;
+}
+.tf-h1 { font-family: var(--font-head); font-size: 32px; font-weight: 300; line-height: 1.2; }
+.tf-h1 b { font-weight: 700; }
+.tf-sub { font-family: var(--font-text); font-size: 16px; font-weight: 400; line-height: 1.2; }
+
+/* ════════════════════════════
+   CAROUSEL ROW
+════════════════════════════ */
+.tf-row { position: relative; width: 100%; }
+
+/* The scroller bleeds to BOTH viewport edges (negative margin) and takes that
+   width back as padding, so its CONTENT box is exactly the Section Container
+   width — which is what the tile % widths resolve against.
+
+   The left side used to have no bleed and no padding, which put the overflow
+   clip edge exactly on the first tile's border box: its box-shadow (0 2px 4px)
+   had nowhere to render and was sliced off vertically. Mirroring the bleed
+   fixes that and gives the tiles a gutter to scroll under on the left, the
+   same way they already did on the right. */
+.tf-scroller {
+  /* MUST stay positioned: the .sr-only spans inside the tiles are
+     position:absolute, and without this their containing block resolves to
+     .tf-row (outside the scroller), so they escape the clip and drag the
+     page's scrollWidth out by ~185px at 1440. */
+  position: relative;
+  overflow-x: auto; overflow-y: hidden;
+  margin-inline: calc(-1 * var(--pagepad));
+  padding-inline: var(--pagepad);
+  /* SC 2.4.11 — keep a focused tile out from under either fade */
+  scroll-padding-inline: var(--pagepad);
+  scrollbar-width: none;            /* visually hidden scrollbar => the */
+  -ms-overflow-style: none;         /* tabindex=0 below is MANDATORY    */
+}
+.tf-scroller::-webkit-scrollbar { display: none; }
+.tf-scroller:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: -2px; }
+@media (min-width: 1600px) {
+  /* All four tiles fit: no carousel, no bleed, nothing to scroll. */
+  .tf-scroller { margin-inline: 0; padding-inline: 0; }
+  .tf-track::after { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tf-scroller { scroll-behavior: smooth; }
+}
+
+.tf-track {
+  display: flex; align-items: flex-start;   /* tiles keep their own heights */
+  gap: var(--tf-gap); list-style: none;
+}
+.tf-tile {
+  flex: 0 0 var(--tf-tile);
+  box-shadow: 0 2px 4px var(--shadow-small);   /* effect "Small" */
+  border-radius: var(--radius-card);
+}
+/* Scrollable overflow is the union of descendant BORDER boxes — neither the
+   scroll container's padding-inline-end nor a last-child margin counts. Without
+   a real trailing box the last tile stops one gutter short and stays under the
+   fade (SC 2.4.11). The negative margin cancels the flex gap the spacer adds. */
+.tf-track::after {
+  content: ''; flex: 0 0 var(--pagepad); height: 1px;
+  margin-left: calc(-1 * var(--tf-gap));
+}
+
+/* Tile / Header */
+.tf-tile-head {
+  background: var(--content-primary);
+  padding: var(--s0250) var(--s0400);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  display: flex; align-items: center;
+}
+.tf-tile-title {
+  font-family: var(--font-head); font-size: 18px; font-weight: 700;
+  line-height: 1.2; color: var(--content-inverted);
+  word-break: break-word;
+}
+
+/* Tile / Content */
+.tf-tile-body {
+  background: var(--bg-tertiary);
+  padding: var(--s0400);
+  display: flex; flex-direction: column; gap: var(--s0350);
+}
+
+/* Tile / Summary */
+.tf-summary {
+  display: flex; flex-direction: column; gap: var(--s0300);
+  padding-bottom: var(--s0350);
+  border-bottom: 1px solid var(--divider);
+  word-break: break-word;
+}
+.tf-pricegrp { display: flex; flex-direction: column; gap: var(--s0150); }
+.tf-price {
+  display: flex; align-items: flex-end; gap: var(--s0150);
+  color: var(--content-primary);
+}
+.tf-price-amt {
+  font-family: var(--font-head); font-size: var(--type-h3); font-weight: 700;
+  line-height: 1.2; white-space: nowrap;
+}
+.tf-price-per { font-family: var(--font-text); font-size: 20px; font-weight: 400; line-height: 1.5; }
+.tf-duration {
+  font-family: var(--font-text); font-size: 14px; font-weight: 700;
+  line-height: 1.2; color: var(--content-secondary);
+}
+.tf-desc {
+  font-family: var(--font-text); font-size: 16px; font-weight: 400;
+  line-height: 1.2; color: var(--content-primary);
+}
+
+/* Tile / Accordion */
+.tf-acc {
+  display: flex; flex-direction: column; gap: var(--s0300);
+  padding-bottom: var(--s0350);
+}
+.tf-acc--emission { border-bottom: 1px solid var(--divider-alt); }
+.tf-acc--ionity   { border-bottom: 1px solid var(--divider); }
+.tf-acc-h { font: inherit; }
+.tf-acc-btn {
+  width: 100%; display: flex; align-items: flex-start; gap: var(--s0250);
+  background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
+  font-family: var(--font-head); font-size: 18px; font-weight: 700;
+  line-height: 1.2; color: var(--content-primary);
+}
+.tf-acc-btn:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
+.tf-acc-label { flex: 1 0 0; min-width: 1px; word-break: break-word; }
+/* 24px icon box; inner shape 21.95 x 11.427 at the exact Figma offsets */
+.tf-chev { position: relative; display: block; width: 24px; height: 24px; flex-shrink: 0; }
+.tf-chev img { position: absolute; left: 1.025px; width: 21.95px; height: 11.427px; display: block; }
+/* Both exports carry the SAME path (a down-pointing "V"); Figma renders the
+   "chevron up" variant by flipping it vertically (-scale-y-100). Without this
+   the expanded accordion would show a down chevron. */
+.tf-chev-up   { top: 5px; transform: scaleY(-1); }
+.tf-chev-down { top: 7.57px; }
+.tf-acc-btn[aria-expanded="true"]  .tf-chev-down { display: none; }
+.tf-acc-btn[aria-expanded="false"] .tf-chev-up   { display: none; }
+.tf-acc-panel { display: flex; flex-direction: column; gap: var(--s0200); }
+/* .tf-acc-panel's display:flex outranks the UA [hidden]{display:none} rule */
+.tf-acc-panel[hidden] { display: none; }
+.tf-acc-note {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.2; color: var(--content-secondary); word-break: break-word;
+}
+
+/* Rate table (We Charge Pro) */
+.tf-rates { display: flex; flex-direction: column; gap: var(--s0100); }
+.tf-rrow { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s0150); }
+.tf-rrow--grp { margin-top: var(--s0150); }          /* 4px gap + 8px == 12px between groups */
+.tf-rrow dt { flex: 1 0 0; min-width: 1px; }
+.tf-rrow dd { white-space: nowrap; text-align: right; }
+.tf-rrow--main {
+  font-family: var(--font-text); font-size: 16px; font-weight: 400;
+  line-height: 1.2; color: var(--content-primary);
+}
+.tf-rrow--main dd b { font-weight: 700; }
+.tf-rrow--sub {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.2; color: var(--content-secondary);
+}
+.tf-rrow--sub dt { display: flex; flex-direction: column; gap: var(--s0100); }
+.tf-rrow--sub dd b { font-weight: 700; }
+.tf-rate-note { font-size: 12px; line-height: 1.5; }
+.tf-rate-note--tertiary { color: var(--content-tertiary); }
+
+/* Tile / Footer */
+.tf-tile-foot {
+  background: var(--bg-tertiary);
+  padding: var(--s0400);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: var(--s0300);
+}
+.tf-cta {
+  width: 100%; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--s0200) var(--s0400);
+  border: 1px solid var(--btn-primary); border-radius: 100px;
+  background: transparent; cursor: pointer;
+  font-family: var(--font-text); font-size: 16px; font-weight: 400;
+  line-height: 1.2; color: var(--btn-secondary); text-align: center;
+}
+.tf-cta:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
+.tf-pdf {
+  display: flex; align-items: center; gap: var(--s0100);
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-family: var(--font-text); font-size: 16px; font-weight: 400;
+  line-height: 1.2; color: var(--btn-primary);
+}
+.tf-pdf:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
+.tf-pdf-ico { position: relative; display: block; width: 24px; height: 24px; flex-shrink: 0; }
+.tf-pdf-ico img { position: absolute; left: 3px; top: 2px; width: 18px; height: 20px; display: block; }
+.tf-pdf-label { border-bottom: 1px solid var(--btn-primary); }
+
+/* ── Fade (frame " Fade") — gradient over each page gutter ── */
+.tf-fade, .tf-fade-left {
+  position: absolute; top: 0; bottom: 0;
+  width: var(--pagepad);
+  pointer-events: none;                 /* SC 2.4.11 */
+  transition: opacity .2s;
+}
+.tf-fade {
+  right: calc(-1 * var(--pagepad));
+  background: linear-gradient(to right, rgba(246,245,242,0) 0%, rgba(246,245,242,1) 100%);
+}
+.tf-fade-left {
+  left: calc(-1 * var(--pagepad));
+  background: linear-gradient(to left, rgba(246,245,242,0) 0%, rgba(246,245,242,1) 100%);
+}
+/* Each fade only means anything while there is content hidden on that side.
+   Safe to hide with opacity: both are aria-hidden and pointer-events:none, so
+   there is no tab stop or AT node to strand behind an invisible layer. */
+.tf-fade.is-off, .tf-fade-left.is-off { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .tf-fade, .tf-fade-left { transition: none; }
+}
+@media (min-width: 1600px) { .tf-fade, .tf-fade-left { display: none; } }
+
+/* ── Prev / Next arrows — every breakpoint where the carousel can scroll ── */
+.tf-next, .tf-prev {
+  position: absolute; top: 43%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 100px;
+  background: var(--btn-primary); border: 0; padding: 0; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+}
+.tf-next { right: calc(16px - var(--pagepad)); }
+.tf-prev { left:  calc(16px - var(--pagepad)); }
+.tf-next:focus-visible, .tf-prev:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
+.tf-next-ico { position: relative; display: block; width: 24px; height: 24px; }
+.tf-next-ico img {
+  position: absolute; left: 8.5px; top: 50%; transform: translateY(-50%);
+  width: 10.5px; height: 21px; display: block;
+}
+/* No chevron-left.svg in assets — mirror the right one. Flipping the 24px box
+   rather than the img also mirrors the glyph's off-centre 8.5px inset. */
+.tf-prev .tf-next-ico { transform: scaleX(-1); }
+/* Figma gates the arrows to 960-1599px. That leaves 320-959px with NO on-screen
+   pointer control for tariffs 2-4, because the scrollbar is suppressed too
+   (scrollbar-width:none). It matters most at 400% zoom, where the layout viewport is
+   320 CSS px but the user is on a desktop with a mouse, not a touchscreen — keyboard
+   access alone is not a pointer affordance. Deliberate deviation from the design.
+   The [hidden] logic below still removes each arrow at its own end of the scroll,
+   and sync() only makes the region scrollable when maxScroll > 2, so no arrow ever
+   appears over non-scrollable content. */
+@media (max-width: 1599px) { .tf-next, .tf-prev { display: flex; } }
+/* An arrow pointing at nothing is a dead control, so each is removed at its own
+   end of the scroll. [hidden] (not opacity) so it leaves the tab order and the
+   a11y tree with it — a focusable-but-invisible button is the worse bug. */
+.tf-next[hidden], .tf-prev[hidden] { display: none; }
+
+/* ── Lentils (pagination indicator) ──
+   Exact Figma geometry: 52x10 box, centres at x = 5/21/35/49, active r=5, rest r=3.
+   Decorative: aria-hidden, never focusable. Navigation lives on the
+   keyboard-scrollable group, the next arrow and the live region.
+   Inactive fill uses --border-input (3.35:1) instead of the export's
+   #A1A4AC (2.29:1), which fails SC 1.4.11.                             */
+.tf-dots { position: relative; width: 52px; height: 10px; flex-shrink: 0; }
+.tf-dot {
+  position: absolute; top: 5px; transform: translate(-50%, -50%);
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border-input);
+}
+.tf-dot:nth-child(1) { left: 5px; }
+.tf-dot:nth-child(2) { left: 21px; }
+.tf-dot:nth-child(3) { left: 35px; }
+.tf-dot:nth-child(4) { left: 49px; }
+.tf-dot[data-active] { width: 10px; height: 10px; background: var(--btn-primary); }
+@media (min-width: 1600px) { .tf-dots { display: none; } }
+
+/* Narrow phones: the design's smallest frame is 375. Trim the 32px tile
+   padding at <375 so the 320px target stays free of horizontal scroll. */
+@media (max-width: 374px) {
+  .tf-tile-body, .tf-tile-foot { padding: var(--s0350); }
+  .tf-tile-head { padding: var(--s0250) var(--s0350); }
+}
+
+/* ── Shared a11y utilities (copied from range-simulator/index.html) ── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0,0,0,0); clip-path: inset(50%);
+  border: 0; white-space: nowrap;
+}
+.skip-link {
+  position: absolute; left: 8px; top: -40px; z-index: 9999;
+  background: #1B2236; color: #fff; padding: 8px 16px; border-radius: 0 0 8px 8px;
+  font-family: var(--font-text, sans-serif); font-size: 14px; text-decoration: none;
+  transition: top 0.15s;
+}
+.skip-link:focus { top: 0; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#tf-main">Skip to main content</a>
+
+<!-- ════ TOPBAR — structure + CSS from range-simulator/index.html ════ -->
+<div id="topbar" role="banner">
+  <div class="topbar-container">
+    <div class="topbar-left">
+      <div class="topbar-logo-col">
+        <img src="assets/logo-vw.svg" alt="Volkswagen" width="32" height="32">
+      </div>
+      <div class="topbar-tabs-col">
+        <div class="topbar-tabs">
+          <div class="topbar-tab">Menu</div>
+          <div class="topbar-tab">Models</div>
+          <div class="topbar-tab">Configure</div>
+          <div class="topbar-tab">Stock cars</div>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-actions-col">
+      <div class="topbar-actions">
+        <div class="topbar-dealer">
+          <p class="topbar-dealer-text">Select dealer</p>
+          <div class="topbar-cta"><img src="assets/pin.svg" alt="" width="24" height="24"></div>
+        </div>
+        <div class="topbar-cta"><img src="assets/magnifier.svg" alt="" width="24" height="24"></div>
+        <div class="topbar-cta"><img src="assets/login.svg" alt="" width="24" height="24"></div>
+        <div class="topbar-cta"><img src="assets/cart.svg" alt="" width="24" height="24"></div>
+        <div class="topbar-cta topbar-burger"><img src="assets/burger.svg" alt="" width="24" height="16"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ CONTENT ════ -->
+<div id="content">
+  <!-- tabindex="-1": see the nala prototype. Chrome/Firefox set the sequential-focus
+       starting point on fragment navigation, but some AT move only the scroll
+       position, leaving the virtual cursor at the top of the document. -->
+  <main id="tf-main" tabindex="-1">
+    <section class="tf-section" aria-labelledby="tf-h1">
+
+      <p class="tf-legal"><span class="tf-legal-org">An offer from Elli AG</span><span class="tf-legal-sep">&nbsp;|&nbsp;</span><a href="#tf-main">Imprint</a></p>
+
+      <div class="tf-container">
+
+        <!-- Copy -->
+        <div class="tf-copy">
+          <h1 class="tf-h1" id="tf-h1">Simply charge<b> – with We Charge</b></h1>
+          <p class="tf-sub">We Charge is a smart service that allows you to charge your ID.Model at home and across Europe at currently over 900,000 charging points.</p>
+        </div>
+
+        <!-- Tariff carousel -->
+        <div class="tf-row">
+          <!-- SC 2.1.1 / ACT 0ssw9k: the scrollbar is visually hidden, so this
+               region must be reachable and scrollable by keyboard. -->
+          <div class="tf-scroller" id="tf-scroller" role="group" tabindex="0"
+               aria-label="Charging tariffs, scrollable list of 4">
+            <ul class="tf-track" role="list">
+
+              <!-- 1 · We Charge Basic -->
+              <li class="tf-tile">
+                <div class="tf-tile-head"><h2 class="tf-tile-title">We Charge Basic</h2></div>
+                <div class="tf-tile-body">
+                  <div class="tf-summary">
+                    <div class="tf-pricegrp">
+                      <p class="tf-price"><span class="tf-price-amt">£0.00</span><span class="tf-price-per">/ month</span></p>
+                      <p class="tf-duration">Contract duration: 1 Month</p>
+                    </div>
+                    <p class="tf-desc">No monthly fee, flexible prices across our charging network</p>
+                  </div>
+                  <div class="tf-acc tf-acc--emission">
+                    <h3 class="tf-acc-h">
+                      <button type="button" class="tf-acc-btn" aria-expanded="true" aria-controls="t1-emission">
+                        <span class="tf-acc-label">Emission standard<span class="sr-only"> — We Charge Basic</span></span>
+                        <span class="tf-chev"><img class="tf-chev-up" src="assets/chevron-up.svg" alt=""><img class="tf-chev-down" src="assets/chevron-down.svg" alt=""></span>
+                      </button>
+                    </h3>
+                    <div class="tf-acc-panel" id="t1-emission">
+                      <p class="tf-acc-note">AC/DC standard prices vary depending on the charging station</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="tf-tile-foot">
+                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Basic</span></button>
+                  <button type="button" class="tf-pdf">
+                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
+                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Basic</span></span>
+                  </button>
+                </div>
+              </li>
+
+              <!-- 2 · We Charge Go -->
+              <li class="tf-tile">
+                <div class="tf-tile-head"><h2 class="tf-tile-title">We Charge Go</h2></div>
+                <div class="tf-tile-body">
+                  <div class="tf-summary">
+                    <div class="tf-pricegrp">
+                      <p class="tf-price"><span class="tf-price-amt">£5.49</span><span class="tf-price-per">/ month</span></p>
+                      <p class="tf-duration">Contract duration: 1 Month</p>
+                    </div>
+                    <p class="tf-desc">Enjoy IONITY discounts and all We Charge Basic benefits</p>
+                  </div>
+                  <div class="tf-acc tf-acc--emission">
+                    <h3 class="tf-acc-h">
+                      <button type="button" class="tf-acc-btn" aria-expanded="true" aria-controls="t2-emission">
+                        <span class="tf-acc-label">Emission standard<span class="sr-only"> — We Charge Go</span></span>
+                        <span class="tf-chev"><img class="tf-chev-up" src="assets/chevron-up.svg" alt=""><img class="tf-chev-down" src="assets/chevron-down.svg" alt=""></span>
+                      </button>
+                    </h3>
+                    <div class="tf-acc-panel" id="t2-emission">
+                      <p class="tf-acc-note">AC/DC standard prices vary depending on the charging station</p>
+                    </div>
+                  </div>
+                  <div class="tf-acc tf-acc--ionity">
+                    <h3 class="tf-acc-h">
+                      <button type="button" class="tf-acc-btn" aria-expanded="false" aria-controls="t2-ionity">
+                        <span class="tf-acc-label">Ionity<span class="sr-only"> — We Charge Go</span></span>
+                        <span class="tf-chev"><img class="tf-chev-up" src="assets/chevron-up.svg" alt=""><img class="tf-chev-down" src="assets/chevron-down.svg" alt=""></span>
+                      </button>
+                    </h3>
+                    <div class="tf-acc-panel" id="t2-ionity" hidden>
+                      <p class="tf-acc-note">IONITY prices vary depending on your tariff</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="tf-tile-foot">
+                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Go</span></button>
+                  <button type="button" class="tf-pdf">
+                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
+                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Go</span></span>
+                  </button>
+                </div>
+              </li>
+
+              <!-- 3 · We Charge Plus -->
+              <li class="tf-tile">
+                <div class="tf-tile-head"><h2 class="tf-tile-title">We Charge Plus</h2></div>
+                <div class="tf-tile-body">
+                  <div class="tf-summary">
+                    <div class="tf-pricegrp">
+                      <p class="tf-price"><span class="tf-price-amt">£10.49</span><span class="tf-price-per">/ month</span></p>
+                      <p class="tf-duration">Contract duration: 1 Month</p>
+                    </div>
+                    <p class="tf-desc">Enjoy our best IONITY prices and all We Charge Basic benefits</p>
+                  </div>
+                  <div class="tf-acc tf-acc--emission">
+                    <h3 class="tf-acc-h">
+                      <button type="button" class="tf-acc-btn" aria-expanded="true" aria-controls="t3-emission">
+                        <span class="tf-acc-label">Emission standard<span class="sr-only"> — We Charge Plus</span></span>
+                        <span class="tf-chev"><img class="tf-chev-up" src="assets/chevron-up.svg" alt=""><img class="tf-chev-down" src="assets/chevron-down.svg" alt=""></span>
+                      </button>
+                    </h3>
+                    <div class="tf-acc-panel" id="t3-emission">
+                      <p class="tf-acc-note">AC/DC standard prices vary depending on the charging station</p>
+                    </div>
+                  </div>
+                  <div class="tf-acc tf-acc--ionity">
+                    <h3 class="tf-acc-h">
+                      <button type="button" class="tf-acc-btn" aria-expanded="false" aria-controls="t3-ionity">
+                        <span class="tf-acc-label">Ionity<span class="sr-only"> — We Charge Plus</span></span>
+                        <span class="tf-chev"><img class="tf-chev-up" src="assets/chevron-up.svg" alt=""><img class="tf-chev-down" src="assets/chevron-down.svg" alt=""></span>
+                      </button>
+                    </h3>
+                    <div class="tf-acc-panel" id="t3-ionity" hidden>
+                      <p class="tf-acc-note">IONITY prices vary depending on your tariff</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="tf-tile-foot">
+                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Plus</span></button>
+                  <button type="button" class="tf-pdf">
+                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
+                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Plus</span></span>
+                  </button>
+                </div>
+              </li>
+
+              <!-- 4 · We Charge Pro -->
+              <li class="tf-tile">
+                <div class="tf-tile-head"><h2 class="tf-tile-title">We Charge Pro</h2></div>
+                <div class="tf-tile-body">
+                  <div class="tf-summary">
+                    <div class="tf-pricegrp">
+                      <p class="tf-price"><span class="tf-price-amt">£15.99</span><span class="tf-price-per">/ month</span></p>
+                      <p class="tf-duration">Contract duration: 1 Month</p>
+                    </div>
+                    <p class="tf-desc">Care-free, premium charging at fixed price</p>
+                  </div>
+                  <div class="tf-acc tf-acc--emission">
+                    <h3 class="tf-acc-h">
+                      <button type="button" class="tf-acc-btn" aria-expanded="true" aria-controls="t4-emission">
+                        <span class="tf-acc-label">Emission standard<span class="sr-only"> — We Charge Pro</span></span>
+                        <span class="tf-chev"><img class="tf-chev-up" src="assets/chevron-up.svg" alt=""><img class="tf-chev-down" src="assets/chevron-down.svg" alt=""></span>
+                      </button>
+                    </h3>
+                    <div class="tf-acc-panel" id="t4-emission">
+                      <dl class="tf-rates">
+                        <div class="tf-rrow tf-rrow--main">
+                          <dt>AC</dt>
+                          <dd><b>£0.52</b> / kWh</dd>
+                        </div>
+                        <div class="tf-rrow tf-rrow--sub">
+                          <dt>Blocking Fee<span class="tf-rate-note">from 210 min. (08:00 - 23:00)</span></dt>
+                          <dd><b>£0.07</b> / min</dd>
+                        </div>
+                        <div class="tf-rrow tf-rrow--main tf-rrow--grp">
+                          <dt>DC</dt>
+                          <dd><b>£0.69</b> / kWh</dd>
+                        </div>
+                        <div class="tf-rrow tf-rrow--sub">
+                          <dt>Blocking Fee<span class="tf-rate-note tf-rate-note--tertiary">from 90 min.</span></dt>
+                          <dd><b>£0.14</b> / min</dd>
+                        </div>
+                        <div class="tf-rrow tf-rrow--main tf-rrow--grp">
+                          <dt>Transaction fee</dt>
+                          <dd>-</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="tf-acc tf-acc--ionity">
+                    <h3 class="tf-acc-h">
+                      <button type="button" class="tf-acc-btn" aria-expanded="false" aria-controls="t4-ionity">
+                        <span class="tf-acc-label">Ionity<span class="sr-only"> — We Charge Pro</span></span>
+                        <span class="tf-chev"><img class="tf-chev-up" src="assets/chevron-up.svg" alt=""><img class="tf-chev-down" src="assets/chevron-down.svg" alt=""></span>
+                      </button>
+                    </h3>
+                    <div class="tf-acc-panel" id="t4-ionity" hidden>
+                      <p class="tf-acc-note">IONITY prices vary depending on your tariff</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="tf-tile-foot">
+                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Pro</span></button>
+                  <button type="button" class="tf-pdf">
+                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
+                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Pro</span></span>
+                  </button>
+                </div>
+              </li>
+
+            </ul>
+          </div><!-- /.tf-scroller -->
+
+          <!-- Gradients only. pointer-events:none, no focusable children. -->
+          <div class="tf-fade-left is-off" id="tf-fade-left" aria-hidden="true"></div>
+          <div class="tf-fade" id="tf-fade" aria-hidden="true"></div>
+
+          <button type="button" class="tf-prev" id="tf-prev" aria-label="Show previous tariff" hidden>
+            <span class="tf-next-ico"><img src="assets/chevron-right.svg" alt=""></span>
+          </button>
+          <button type="button" class="tf-next" id="tf-next" aria-label="Show next tariff">
+            <span class="tf-next-ico"><img src="assets/chevron-right.svg" alt=""></span>
+          </button>
+        </div><!-- /.tf-row -->
+
+        <!-- Lentils — decorative indicator, mirrors the scroll position -->
+        <div class="tf-dots" id="tf-dots" aria-hidden="true">
+          <span class="tf-dot" data-active></span><span class="tf-dot"></span><span class="tf-dot"></span><span class="tf-dot"></span>
+        </div>
+
+        <p class="sr-only" id="tf-live" aria-live="polite"></p>
+      </div><!-- /.tf-container -->
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var sc    = document.getElementById('tf-scroller');
+  var next  = document.getElementById('tf-next');
+  var prev  = document.getElementById('tf-prev');
+  var fadeR = document.getElementById('tf-fade');
+  var fadeL = document.getElementById('tf-fade-left');
+  var dots  = Array.prototype.slice.call(document.querySelectorAll('#tf-dots .tf-dot'));
+  var live  = document.getElementById('tf-live');
+  var tiles = Array.prototype.slice.call(sc.querySelectorAll('.tf-tile'));
+  var names = tiles.map(function (t) {
+    var h = t.querySelector('.tf-tile-title');
+    return h ? h.textContent.trim() : '';
+  });
+
+  /* ── Accordions ── */
+  Array.prototype.forEach.call(document.querySelectorAll('.tf-acc-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      var open   = btn.getAttribute('aria-expanded') === 'true';
+      var panel  = document.getElementById(btn.getAttribute('aria-controls'));
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      if (panel) { panel.hidden = open; }
+    });
+  });
+
+  /* ── Keep a keyboard-focused tile control inside the scroll porthole ──
+     SC 2.4.11. Tabbing from tile 3 to tile 4 at 960px left scrollLeft at 630 of 840:
+     Chrome treats a 69%-visible button as needing no scroll, so the control sat 98 CSS
+     px past the right edge with the fade over part of the remainder. That still passes
+     2.4.11 (Minimum), which only fails on ENTIRE obscuring, but it is a real usability
+     defect and it fails 2.4.12 (Enhanced). Scroll it in explicitly.
+     `inline/block: 'nearest'` so this never scrolls the page itself, and the guard
+     keeps the arrows -- which live outside the scroller -- from triggering it. */
+  sc.addEventListener('focusin', function (e) {
+    var el = e.target;
+    if (!el || !sc.contains(el) || el === sc) { return; }
+    if (typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    }
+  });
+
+  /* ── Carousel step = tile width + gap ── */
+  function step() {
+    if (tiles.length < 2) { return sc.clientWidth; }
+    var a = tiles[0].getBoundingClientRect();
+    var b = tiles[1].getBoundingClientRect();
+    return Math.round(b.left - a.left) || Math.round(a.width);
+  }
+
+  var lastIndex = -1;
+  function sync() {
+    var maxScroll = sc.scrollWidth - sc.clientWidth;
+    var scrollable = maxScroll > 2;
+
+    /* SC 2.1.1 — only a genuinely scrollable region needs to be a tab stop. */
+    if (scrollable) {
+      sc.setAttribute('tabindex', '0');
+    } else {
+      sc.removeAttribute('tabindex');
+    }
+
+    /* Each side's fade + arrow appear only while content is hidden on that side.
+       1px of slack absorbs sub-pixel scrollLeft at fractional --pagepad widths,
+       which otherwise leaves an arrow up at a hard end. */
+    var atStart = sc.scrollLeft <= 1;
+    var atEnd   = sc.scrollLeft >= maxScroll - 1;
+    prev.hidden = !scrollable || atStart;
+    next.hidden = !scrollable || atEnd;
+    fadeL.classList.toggle('is-off', !scrollable || atStart);
+    fadeR.classList.toggle('is-off', !scrollable || atEnd);
+
+    var s = step();
+    var i = s > 0 ? Math.round(sc.scrollLeft / s) : 0;
+    if (i < 0) { i = 0; }
+    if (i > dots.length - 1) { i = dots.length - 1; }
+
+    dots.forEach(function (d, n) {
+      if (n === i) { d.setAttribute('data-active', ''); }
+      else { d.removeAttribute('data-active'); }
+    });
+
+    if (i !== lastIndex) {
+      if (lastIndex !== -1 && live) {
+        live.textContent = names[i] + ', tariff ' + (i + 1) + ' of ' + names.length;
+      }
+      lastIndex = i;
+    }
+  }
+
+  var pending = false;
+  function schedule() {
+    if (pending) { return; }
+    pending = true;
+    window.requestAnimationFrame(function () { pending = false; sync(); });
+  }
+
+  sc.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  if (window.ResizeObserver) { new ResizeObserver(schedule).observe(sc); }
+
+  next.addEventListener('click', function () {
+    sc.scrollLeft = Math.min(sc.scrollLeft + step(), sc.scrollWidth - sc.clientWidth);
+  });
+
+  prev.addEventListener('click', function () {
+    sc.scrollLeft = Math.max(sc.scrollLeft - step(), 0);
+  });
+
+  sync();
+})();
+</script>
+</body>
+</html>
