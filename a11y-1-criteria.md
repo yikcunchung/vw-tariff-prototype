@@ -1,7 +1,7 @@
 # A11y 1 of 3 — WCAG 2.2 criterion checklist
 
 **App:** VW Charging Tariffs — We Charge (`tariffs`) — a single-page simulator.
-**Audited:** 2026-08-22 against the live deployment.
+**Audited:** 2026-08-24 against the current source.
 **Deployed at:** https://yikcunchung.github.io/vw-tariff-prototype/
 **Scope:** the whole page. This app is standalone, so there is no component-versus-page split and
 nothing is out of scope. **PDFs are excluded** — the app ships none; they would be a separate
@@ -25,7 +25,7 @@ criteria are not required and are not listed.
 | ⚪ N/A | The app has no such content |
 | ⚖️ Decide | Passes, but on an arguable reading — record the decision |
 
-**56 criteria assessed. 0 failures and 0 open items.** 23 verified · 9 inspected · 24 not applicable · 0 decisions to record.
+**56 criteria assessed. 0 failures and 0 open items.** 23 verified · 8 inspected · 24 not applicable · 1 decision to record.
 
 ---
 
@@ -68,10 +68,10 @@ criteria are not required and are not listed.
 | **1.4.1** | Use of Color | A | Yes | ✅ Pass* | Colour is never the sole channel — each tier is identified by its heading text, not its colour band. |
 | **1.4.2** | Audio Control | A | No | ⚪ N/A | No audio plays automatically or otherwise; `audio[autoplay]` / `video[autoplay]` count is 0. |
 | **1.4.3** | Contrast (Minimum) | AA | Yes | ✅ Pass | **No `color-contrast` node entered the incomplete bucket at any viewport** — axe computed a ratio for every text node and none failed. |
-| **1.4.4** | Resize Text | AA | Yes | ✅ Pass | 400% zoom (320×256 @ dsf 4): no page-level horizontal scroll, all 20 controls reachable, nothing clipped. |
+| **1.4.4** | Resize Text | AA | Yes | ✅ Pass | 400% zoom (320×256 @ dsf 4): no page-level horizontal scroll, all 16 stops reachable, nothing clipped. |
 | **1.4.5** | Images of Text | AA | Yes | ✅ Pass* | No images of text. |
 | **1.4.10** | Reflow | AA | Yes | ✅ Pass | Page `scrollWidth 320 == clientWidth 320` at 320×256 @ dsf 4 — **no page-level horizontal scroll**. The tiles extend beyond the viewport but entirely inside `#tf-scroller`, a deliberate keyboard-operable horizontal carousel, which is the permitted two-dimensional-content exception. All 20 controls reachable and scrolled into view. |
-| **1.4.11** | Non-text Contrast | AA | Yes | ✅ Pass* | Tile borders and the focus ring are navy on light — far above 3:1. |
+| **1.4.11** | Non-text Contrast | AA | Yes | ⚖️ Decide | Tile borders are navy on light, far above 3:1. The focus ring is `#c86c03` (the value the visualizer FA ships): **3.75:1** on the tile white, **3.44:1** on the page cream. On a CTA that is *hovered and focused at once* the ring's inner neighbour becomes the `#ccbdab` hover fill at **2.04:1** — its outer edge still reads 3.75:1 against the footer white, so the indicator stays discernible. Passes on that reading; record the decision. |
 | **1.4.12** | Text Spacing | AA | Yes | ✅ Pass | All four overrides applied (line-height 1.5, letter-spacing .12em, word-spacing .16em, paragraph 2em) at 1440 / 390 / 320: **no newly clipped element, no control lost, no horizontal scroll.** Detector validated against a canary that fits at the default line-height and overflows at 1.5. |
 | **1.4.13** | Content on Hover or Focus | AA | No | ⚪ N/A | No hover- or focus-triggered content. The accordions are click-toggled. |
 
@@ -83,8 +83,8 @@ criteria are not required and are not listed.
 
 | SC | Name | Lvl | Relevant | Status | Evidence / what to do |
 |---|---|---|---|---|---|
-| **2.1.1** | Keyboard | A | Yes | ✅ Pass | All 20 controls operable by keyboard, including the 7 accordions and prev/next, driven with real key events. |
-| **2.1.2** | No Keyboard Trap | A | Yes | ✅ Pass | No trap. Focus enters and leaves `#tf-scroller` freely; all 20 stops cycle. |
+| **2.1.1** | Keyboard | A | Yes | ✅ Pass | All 16 stops operable by keyboard, including the 7 accordions and prev/next, driven with real key events. `ArrowLeft`/`ArrowRight` on a control inside a tile step the carousel exactly as the arrow buttons do, and focus follows to the matching control in the adjacent tile. `#tf-scroller` itself keeps the browser's native arrow scrolling. |
+| **2.1.2** | No Keyboard Trap | A | Yes | ✅ Pass | No trap. Focus enters and leaves `#tf-scroller` freely; all 16 stops cycle. The arrow-key handler `preventDefault`s only between the first and last tile, so the arrows never swallow a key at either end. |
 | **2.1.4** | Character Key Shortcuts | A | No | ⚪ N/A | No single-character key shortcuts are registered. |
 
 
@@ -109,12 +109,12 @@ criteria are not required and are not listed.
 |---|---|---|---|---|---|
 | **2.4.1** | Bypass Blocks | A | Yes | ✅ Pass | `a.skip-link → #tf-main`; target exists, first tab stop. |
 | **2.4.2** | Page Titled | A | Yes | ✅ Pass | `<title>Volkswagen Charging Tariffs — We Charge</title>` — descriptive and unique. |
-| **2.4.3** | Focus Order | A | Yes | ✅ Pass | Focus order is `#tf-scroller` → each tile's 3–4 controls in visual order → prev/next. Verified at 1440 and 320×256 @ dsf 4; a `focusin` handler scrolls each focused control into view (`inVP=true` for all 20). |
-| **2.4.4** | Link Purpose (In Context) | A | Yes | ✅ Pass | The 4× "More information" and 4× "PDF Download" visible strings resolve to 12 **unique** accessible names, each suffixed with its tier — exactly what a screen-reader control list needs. |
+| **2.4.3** | Focus Order | A | Yes | ✅ Pass | Focus order is `#tf-scroller` → each tile's 2–3 controls in visual order → prev/next. Verified at 1440 and 320×256 @ dsf 4; a `focusin` handler scrolls each focused control into view (`inVP=true` for all 16). |
+| **2.4.4** | Link Purpose (In Context) | A | Yes | ✅ Pass | The 4× "PDF Download" and 7× accordion strings resolve to 11 **unique** accessible names, each suffixed with its tier — exactly what a screen-reader control list needs. 0 duplicate role+name pairs in the accessibility tree. |
 | **2.4.5** | Multiple Ways | AA | No | ⚪ N/A | A standalone single page. SC 2.4.5 applies to a *set* of web pages; there is no set. |
 | **2.4.6** | Headings and Labels | AA | Yes | ✅ Pass | `h1 → h2 → h3`, no skipped levels, one `h1`. Every control name is descriptive and tier-qualified. |
-| **2.4.7** | Focus Visible | AA | Yes | ✅ Pass | Every control shows a visible ring. **Note:** `.skip-link` and the Imprint link use the Chrome UA `1px auto` ring rather than the app's `2px solid var(--navy-dark)` — visible, so this passes, but inconsistent with every other control and with nala. |
-| **2.4.11** | Focus Not Obscured (Minimum) | AA | Yes | ✅ Pass | The `focusin` handler scrolls each focused control clear of the sticky chrome. All 20 measured inside the viewport at 320×256. |
+| **2.4.7** | Focus Visible | AA | Yes | ✅ Pass | **All 16 stops show the same ring** — `2px solid var(--focus-ring)` (`#c86c03`), `outline-offset: 0`, measured on every stop by driving real `Tab` keys. `.skip-link` and the Imprint link are included; they previously fell back to Chrome's `1px auto` UA ring. |
+| **2.4.11** | Focus Not Obscured (Minimum) | AA | Yes | ✅ Pass | The `focusin` handler scrolls each focused control clear of the sticky chrome. All 16 measured inside the viewport at 320×256. The arrow-key handler moves focus to the adjacent tile rather than leaving it on a control it has just scrolled out of the porthole. |
 
 
 ## 2.5 Input Modalities
@@ -123,10 +123,10 @@ criteria are not required and are not listed.
 |---|---|---|---|---|---|
 | **2.5.1** | Pointer Gestures | A | Yes | ✅ Pass* | The carousel needs no gesture — prev/next buttons and native scrolling both work. No path-based gesture. |
 | **2.5.2** | Pointer Cancellation | A | Yes | ✅ Pass* | All activation on the up-event; native `<button>` semantics throughout. |
-| **2.5.3** | Label in Name | A | Yes | ✅ Pass | All 19 controls checked: every visible label is contained **verbatim and at the start** of the accessible name. `Emission standard` → "Emission standard — We Charge Pro"; `More information` → "More information about We Charge Pro"; `PDF Download` → "PDF Download — We Charge Pro". |
+| **2.5.3** | Label in Name | A | Yes | ✅ Pass | All 15 controls checked: every visible label is contained **verbatim and at the start** of the accessible name. `Emission standard` → "Emission standard — We Charge Pro"; `PDF Download` → "PDF Download — We Charge Pro". |
 | **2.5.4** | Motion Actuation | A | No | ⚪ N/A | No device-motion or user-motion actuation. |
 | **2.5.7** | Dragging Movements | AA | No | ⚪ N/A | No dragging movement. The carousel is operated by buttons and native scroll. |
-| **2.5.8** | Target Size (Minimum) | AA | Yes | ✅ Pass | **No control under 24px in any dimension, in any state, at any viewport.** Smallest are `.tf-acc-btn` at 192×24 and `.tf-pdf` at 129×24; prev/next are 44×44. axe `target-size`: 18 pass, 0 violations, 0 incomplete. |
+| **2.5.8** | Target Size (Minimum) | AA | Yes | ✅ Pass | **No control under 24px in any dimension, in any state, at any viewport.** Smallest are `.tf-acc-btn` at 192×24 and the Imprint link at 44×24; prev/next are 44×44; `.tf-cta` is 296×44 at 1440 and 192×56 at 320, where its label wraps. axe `target-size`: 14 pass, 0 violations, 0 incomplete. |
 
 
 # 3. Understandable
@@ -171,7 +171,7 @@ criteria are not required and are not listed.
 | SC | Name | Lvl | Relevant | Status | Evidence / what to do |
 |---|---|---|---|---|---|
 | **4.1.1** | Parsing | A | Yes | ✅ Pass | Nu HTML validator: **0 errors**. Obsolete in WCAG 2.2 but normative under EN 301 549 clause 9.4.1.1, so it is checked and kept. |
-| **4.1.2** | Name, Role, Value | A | Yes | ✅ Pass | **AX tree: 363 nodes, 33 named, 0 unnamed, 0 duplicate role+name.** `#tf-scroller` is a named `role="group"` with `tabindex="0"`; every accordion keeps `aria-expanded` synchronised, verified across 5 states. |
+| **4.1.2** | Name, Role, Value | A | Yes | ✅ Pass | **AX tree: 339 nodes, 29 named, 0 unnamed, 0 duplicate role+name.** `#tf-scroller` is a named `role="group"` with `tabindex="0"`; every accordion keeps `aria-expanded` synchronised, verified across 5 states. |
 | **4.1.3** | Status Messages | AA | Yes | ✅ Pass | `#tf-live` (`aria-live="polite"`) announces carousel position — "We Charge Pro, tariff 4 of 4". Verified through 5 state changes. |
 
 ---

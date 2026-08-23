@@ -1,7 +1,7 @@
 # A11y 2 of 3 — What the automated tests cover, and what they cannot
 
 **App:** VW Charging Tariffs — We Charge (`tariffs`).
-**Audited:** 2026-08-22 against the live deployment, headless Chrome 151.0.7922.174, axe-core 4.13.0
+**Audited:** 2026-08-24 against the current source, headless Chrome 151.0.7922.174, axe-core 4.13.0
 (`axe.version` read from the engine, not the bundle filename).
 **Deployed at:** https://yikcunchung.github.io/vw-tariff-prototype/
 **Companions:** `a11y-1-criteria.md` (every criterion) · `a11y-3-implementation.md` (what to build).
@@ -67,18 +67,24 @@ Viewports: 1440×900, 768×1024, 390×844, 320×640, and 320×256 @ dsf 4 (liter
 |---|---|
 | Rules executed | 97 |
 | Violations | **0** at every viewport |
-| `target-size` | **passes 18 nodes**, 0 violations, 0 incomplete |
+| `target-size` | **passes 14 nodes**, 0 violations, 0 incomplete |
 | JS exceptions | **0** |
 | Horizontal scroll | none, at any viewport |
+
+> **Force-enabling *every* rule raises the run to 107** — the 97 above plus the AAA and
+> best-practice sets. That surfaces exactly two, both outside the A + AA target and both
+> present before any of the current markup: `color-contrast-enhanced` (SC 1.4.6, **AAA**)
+> and `focus-order-semantics` (an axe best-practice rule that maps to no SC). Neither is a
+> finding against this conformance target; do not report them as regressions.
 
 ## Accessibility tree
 
 | Measure | Value |
 |---|---|
-| Nodes (1440×900) | 363 |
-| Named interactive / graphic nodes | 33 |
+| Nodes (1440×900) | 339 |
+| Named interactive / graphic nodes | 29 |
 | **Unnamed** | **0** |
-| Focusable controls | 19 |
+| Focusable controls | 15 |
 
 > No unnamed node has ever been exposed here — every inline `<svg>` already carried `aria-hidden="true"` or a name.
 
@@ -90,6 +96,12 @@ Viewports: 1440×900, 768×1024, 390×844, 320×640, and 320×256 @ dsf 4 (liter
 
 The run was confirmed to have analysed the real page — control count and document title were read
 back out of WAVE's iframe, not assumed.
+
+> ⚠️ **This row predates the current markup and has not been re-run.** WAVE needs a public URL,
+> and the tile footers, the focus ring and the legal label have changed since. Re-run it against
+> the Pages deployment before quoting these numbers. Nu **was** re-run against the current file:
+> **0 errors**, one info-level warning (`the "list" role is unnecessary for element "ul"`, kept
+> deliberately for Safari).
 
 ## Nu HTML validator — 0 errors
 
