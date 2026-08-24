@@ -19,8 +19,15 @@ The single most important sentence in this pack:
 
 # 0. Scope of this evidence — read before quoting a number
 
-This app is a **standalone page**, so `axe.run(document)` covers the whole conformance surface.
-There is no component-versus-page split.
+The conformance surface is **`#tf-main`** — the tariff section. `axe.run(document)` is run over the
+whole document anyway, because scoping a scanner is how findings get lost; anything it reports in the
+**topbar** is then triaged as out of scope.
+
+**The topbar is excluded deliberately, not conveniently.** It is non-functional chrome reproducing the
+VW shell: inert `<div>`s wrapping `alt=""` images, with no handler, `tabindex`, `role` or
+`cursor: pointer`. They do nothing for *anyone* — a sighted mouse user cannot use them either. That is
+**not implemented**, not "accessible", and a real build must turn them into real controls and expose
+them. See `a11y-1` for the scope statement and §9.3 for what a Pro-tier scan finds against them.
 
 The local `index.html` and the deployed build are **byte-identical**.
 
@@ -633,13 +640,96 @@ three panels stop being hidden (§2).
 **Run 2 is complete:** two engines, two invocation methods, two content states, and the same six
 numbers every time.
 
-## 9.3 axe DevTools — ◐ engine covered, UI not run
+## 9.3 axe DevTools — ◐ UI run done 2026-08-24 (Pro); 3 findings on the out-of-scope topbar, 1 guided test still owed
 
-axe-core **4.13.0**, the library the 4.131.2 extension embeds, has been run over CDP across five
-viewports with every rule force-enabled (107): **0 violations in the A + AA scope**, `target-size`
-14 pass / 0 violations. What has *not* happened is a pass through the extension UI at WCAG 2.2 AA.
-Expect agreement — run it anyway, because the protocol names the UI build, and the build number is
-not the engine version.
+Run through the **axe DevTools Pro** extension UI against the live URL. Settings recorded, because
+they determine whether the number means anything: **WCAG 2.2 AA**, **Best Practices ON**,
+**Experimental OFF**.
+
+| Bucket | Count |
+|---|---|
+| **Automatic Issues (axe-core)** | **0** |
+| Automatic Issues (**advanced**, Pro-only) | 2 |
+| Guided Issues | 1 |
+| Manual Issues | 0 |
+| **Total** | **3** — all Critical |
+| Ignored (excluded from total) | 0 |
+
+### The number that matters: axe-core = 0
+
+**The open-source engine agrees with the CDP run exactly.** That is the comparison this section
+existed to make, and it holds. The 3 findings come from rules that are **not in open-source axe-core
+at all** — Pro's "advanced" set plus a guided test — so no headless harness could have produced them,
+and their absence from §2 is not a harness failure.
+
+### The 3 findings
+
+| Rule | Count | Where |
+|---|---|---|
+| Informative images must have accessible names | 2 | topbar icons |
+| Function cannot be performed by keyboard alone | 1 | topbar |
+
+All three are against the **topbar, which is out of scope** — see §0 and `a11y-1`. They are the
+predictable consequence of inert `<div>`s wrapping `alt=""` icons: Pro judges an icon-only graphic in
+a navigation bar to be informative rather than decorative, and flags a control-looking element that no
+keyboard can reach. **Both judgements are correct about the markup.** The reason they are not fixed is
+that the topbar is not implemented at all, not that the findings are wrong.
+
+> ⚠️ **Still to capture: the per-node selectors.** The attribution above is the tester's, taken from
+> the panel. Expanding each issue gives the element, and that list belongs here — if any node resolves
+> inside `#tf-main` it is a real in-scope finding and this verdict changes.
+
+### Intelligent Guided Tests — 2 of 5 run
+
+| Guided test | Runs | Issues | Reading |
+|---|---|---|---|
+| **Interactive Elements** | **1** | **0** | ✅ **This is where target size lives** in current builds. Run, clean — **SC 2.5.8 is covered by the UI**, independently of the CDP run's 14-node pass |
+| **Keyboard** | **1** | **1** | The "Function cannot be performed by keyboard alone" finding — the topbar |
+| Table | 0 | 0 | **Not run.** Also **not applicable**: the page contains **0 `<table>`** elements |
+| Modal Dialog | 0 | 0 | **Not run.** Also **not applicable**: 0 `<dialog>`, 0 `role="dialog"`, 0 `aria-modal` |
+| Structure | 0 | 0 | **Not run — and it does apply.** 12 headings, a `<ul>`, a `<dl>`, a banner and a main. **This is the gap in Run 3** |
+
+> **This panel is the trap in §4 caught in the act.** Three tests read "Runs: 0, Total issues: 0",
+> and the summary rolls them into "Guided Issues: 1" — which looks like four clean tests and one
+> finding. It is **two** tests run and three never started. Two of those three are genuinely N/A here,
+> verified above by element count rather than assumed. **Structure is neither run nor N/A**, and until
+> it is run the guided half of this section is incomplete.
+
+### Structure guided test — run 2026-08-24
+
+Worked through by hand. Steps 1–3 confirmed against the markup independently before answering, rather
+than clicked through:
+
+- **The 12 headings are all legitimate headings.** Nothing is marked up as a heading for styling.
+- **Nothing is missing.** The only real candidate was the tile price — large, bold, standalone, and
+  exactly the shape a tool flags as "possible heading". It is correctly a `<p>`: a heading names a
+  *section*, and the price is a **value** whose section is already named by the `h2` above it. As a
+  heading it would put "£10.49" in the headings rotor, useless for navigation, and would have to be an
+  `h3`, colliding with the accordion level.
+- **Heading text includes the `.sr-only` tier suffix** — the tool listed all 12 as "Emission standard —
+  We Charge Pro" and so on. Useful corroboration that the suffix reaches the accessible name and that
+  all 12 heading names are unique.
+
+- **All 12 headings describe the content that follows them.** The step worth a second look was the
+  four `"Emission standard"` headings, which introduce pricing content — a sentence about AC/DC
+  standard prices in Basic/Go/Plus, and the rate table itself in Pro. "Emission standard" is the
+  product's own term for the standard, non-Ionity tier, and was read as clear by the team that owns
+  the copy. Answered **yes**; no finding.
+
+**What is still owed to finish Run 3:** the per-node selectors for the 3 findings. Nothing else.
+
+### Two deviations from the protocol, recorded
+
+1. **Engine version.** The extension shipped **axe-core 4.12.1**; the CDP runs in §2 used **4.13.0**.
+   The protocol names extension build **4.131.2** — which is a build number, not an engine version.
+   Record all three rather than implying they are the same thing.
+2. **`focus-order-semantics` did not appear**, despite Best Practices being ON. The 4.13.0 CDP run
+   flags it on `#tf-scroller` ("Element does not have a widget role"). Rule sets move between minor
+   versions, so this is a **version difference, not a contradiction** — and it is the one already
+   documented as a deliberate disagreement, where SC 2.1.1 wins over a best-practice rule.
+
+`color-contrast-enhanced` correctly **did not** appear: it is AAA, and the standard was set to 2.2 AA.
+That is the expectation in the previous revision of this section holding exactly.
 
 ## 9.4 NVDA — ❌ not done
 
