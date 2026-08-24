@@ -429,11 +429,13 @@ is exactly what scores clean on a build with a Level A naming failure.
 **Nothing in this section has been run against the current build.** The headings below are slots,
 not results. The automated evidence in §2 is current as of 2026-08-24; the manual evidence is not.
 
-## 9.1 Screen reader — ◐ VoiceOver / Safari, partial (2026-08-24)
+## 9.1 Screen reader — ✅ VoiceOver / Safari, complete (2026-08-24)
 
 **VoiceOver on Safari, against the live deployment**, freshness-checked before the run
 (`grep -c 'tf-cta-ico'` → 6). Captured from the VoiceOver caption panel. **Partial: the naming and
-navigation half is done, the behaviour half is not** — see "still outstanding" below.
+**Complete for VoiceOver on Safari. NVDA is
+untouched — §9.4.** One defect was found and fixed; the arrow-key rows were re-confirmed against the
+fixed build.
 
 ### What was heard
 
@@ -528,20 +530,43 @@ The dots keep using the scroll-derived index; a position indicator *should* mirr
 arrow-key feature, shipped past a clean axe run at 107 rules, a clean AX tree and 16 verified tab
 stops, and was caught by one person pressing an arrow key and listening.
 
-### Still outstanding in this run
-
 Three things, all narrow:
 
-**One thing only.** The `<dl>` rate rows: whether each rate label stays paired with its value when
-browsing with the virtual cursor, or whether the term/definition pairs interleave. SC 1.3.1 / 1.3.2,
-and no tool supplies it.
+### The rate rows — reported as "not glued", and that is correct behaviour
 
-Two facts that make this easier to test than it looks: the rows are `<dt>`/`<dd>`, so they are
-**correctly not focusable** and are reached with `VO+Right`, not `Tab`; and **only the Pro tile has
-them** — the page holds exactly one `<dl>`, 5 pairs. The other three tiles carry a sentence instead.
+The tester reported that the rate labels and their values are "not glued / connected" and that the
+rows are not focusable. **Both observations are accurate, and neither is a defect.** The rows are
+`<dt>`/`<dd>`, not controls: they are correctly outside the Tab order and are reached with the virtual
+cursor. A reader speaks a term and its definition as two utterances — that is simply how a description
+list is read.
 
-**Re-run the whole of Run 1 after the live-region fix deploys.** The utterances above were captured
-against the build before it.
+**The relationship is programmatically determined**, which is what SC 1.3.1 actually requires. The
+exposed subtree, read off the live page:
+
+```
+DescriptionList
+  term "AC"                                          definition "£0.52 / kWh"
+  term "Blocking Fee from 210 min. (08:00 - 23:00)"  definition "£0.07 / min"
+  term "DC"                                          definition "£0.69 / kWh"
+  term "Blocking Fee from 90 min."                   definition "£0.14 / min"
+  term "Transaction fee"                             definition "-"
+```
+
+Five `term` / `definition` pairs, correctly ordered and paired. **SC 1.3.1 and 1.3.2 pass.** The rate
+note inside each `<dt>` is also spaced correctly in the accessible text ("Blocking Fee from 210 min.",
+not "Blocking Feefrom") — the run-together string in the raw `textContent` is a `textContent`
+artifact, not what a reader gets.
+
+**One nuance recorded, not fixed.** The AC block and the DC block are separated only by visual spacing
+(`.tf-rrow--grp`); there is no role or ARIA grouping on the rows. Sequential reading carries the
+association — AC, then AC's blocking fee, then DC, then DC's — so the information *is* available in
+text and the criterion holds. But a user who jumps into the middle of the list meets "Blocking Fee
+from 90 min., £0.14 / min" with nothing saying *DC*. The two blocking-fee terms are at least
+distinguishable from each other by their notes. Worth knowing before anyone reorders these rows:
+**the grouping lives in the reading order, so the order is load-bearing.**
+
+Also worth knowing: **only the Pro tile has rate rows.** The page holds exactly one `<dl>`, 5 pairs;
+the other three tiles carry a description sentence instead.
 
 **NVDA remains untouched** — §9.4. VoiceOver on Safari is a **deviation recorded, not a substitute**.
 
@@ -590,9 +615,10 @@ only thing verified here is that **the link resolves and the download starts.**
 
 **What it must not say: "fully compliant."** Three specific reasons, not hedging:
 
-1. **No screen reader has been run at all.** This app's naming strategy — four identical visible
-   "PDF Download" strings disambiguated by an `.sr-only` tier suffix — is exactly the kind of thing
-   that is correct in the accessibility tree and can still read badly aloud. It is untested.
+1. **Only one screen reader, on one browser, and not the one the protocol names.** VoiceOver on
+   Safari passed (§9.1) — including SC 2.5.3, which no tool can test. But **NVDA 2026.1.1.55980 is
+   named by the protocol and has not been run**, and readers differ in what they announce. VoiceOver
+   is a **deviation recorded, not a substitute**.
 2. **The WAVE evidence describes an older build.** A second, independent engine agreeing is a real
    part of the claim; a second engine agreeing about *different markup* is not.
 3. **One decision rests on a reading an auditor may reject** — the SC 1.4.11 focus ring at 2.04:1
