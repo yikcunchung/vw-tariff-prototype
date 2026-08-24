@@ -5,7 +5,10 @@ styled-components.
 **Companions:** `a11y-1-criteria.md` (every criterion, pass/fail) ·
 `a11y-2-automated-testing.md` (what the tools can and cannot prove).
 
-**Scope:** the whole page. This app is standalone — there is no component-versus-page split.
+**Scope:** `#tf-main` — the tariff section. The topbar is out of scope: non-functional chrome whose
+icons are inert placeholders. **When it is built for real, those icons become real controls and every
+invariant here applies to them** — an icon-only button needs a name (A2), a target needs 24×24 (C1),
+and everything the mouse can do the keyboard must do (B1).
 
 > **Do not copy the reference build.** It is vanilla HTML/JS and it is a *behavioural
 > specification*, not source to port. A meaningful share of the required behaviour lives in

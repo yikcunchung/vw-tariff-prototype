@@ -3,8 +3,14 @@
 **App:** VW Charging Tariffs — We Charge (`tariffs`) — a single-page simulator.
 **Audited:** 2026-08-24 against the current source.
 **Deployed at:** https://yikcunchung.github.io/vw-tariff-prototype/
-**Scope:** the whole page. This app is standalone, so there is no component-versus-page split and
-nothing is out of scope. **PDFs are now a linked surface, and that changes the scope.** Each tile's
+**Scope:** `#tf-main` — the tariff section and everything in it. **The topbar is out of scope.** It is
+non-functional chrome reproducing the VW shell: its icons are inert `<div>`s with `alt=""` images, no
+click handler, no `tabindex`, no `role`, no `cursor: pointer`. Nothing in this table is claimed about
+them, and findings against them are recorded in `a11y-2` §9.3 rather than fixed here. **They are not
+"accessible" — they are not implemented**, which is a different statement, and a real build must make
+them real controls and expose them.
+
+**PDFs are a linked surface, and that changes the scope too.** Each tile's
 CTA is an `<a href="assets/*.pdf" download>`, so four PDFs are part of what this page offers. The
 *documents themselves* remain a separate conformance surface under **EN 301 549 clause 10**, checked
 with **PAC** — not by anything in this pack. The four files now in `assets/` are **placeholders,
@@ -117,7 +123,7 @@ criteria are not required and are not listed.
 | **2.4.3** | Focus Order | A | Yes | ✅ Pass | Focus order is `#tf-scroller` → each tile's 2–3 controls in visual order → prev/next. Verified at 1440 and 320×256 @ dsf 4; a `focusin` handler scrolls each focused control into view (`inVP=true` for all 16). |
 | **2.4.4** | Link Purpose (In Context) | A | Yes | ✅ Pass | Six links, six unique names. The four PDF CTAs are real `<a href download>`: the visible words say "PDF Download" so the **format is stated in the link text**, and the `.sr-only` tier suffix makes each destination unambiguous ("PDF Download — We Charge Pro"). With the 7 accordion buttons that is 11 tier-suffixed names and **0 duplicate role+name pairs** in the accessibility tree. **Not verified: that each `href` points at the right tariff's document** — the targets are placeholders, so there is nothing to check the mapping against yet. |
 | **2.4.5** | Multiple Ways | AA | No | ⚪ N/A | A standalone single page. SC 2.4.5 applies to a *set* of web pages; there is no set. |
-| **2.4.6** | Headings and Labels | AA | Yes | ✅ Pass | `h1 → h2 → h3`, no skipped levels, one `h1`. Every control name is descriptive and tier-qualified. |
+| **2.4.6** | Headings and Labels | AA | Yes | ✅ Pass | `h1 → h2 → h3`, no skipped levels, one `h1`, 12 unique heading names, every control name descriptive and tier-qualified. The axe DevTools **Structure** guided test asks whether each heading describes the content that follows; all 12 were answered **yes**. "Emission standard" heads the standard — non-Ionity — rate content and is the product's own term, read as clear by the team who owns the copy. |
 | **2.4.7** | Focus Visible | AA | Yes | ✅ Pass | **All 16 stops show the same ring** — `2px solid var(--focus-ring)` (`#c86c03`), `outline-offset: 0`, measured on every stop by driving real `Tab` keys. `.skip-link` and the Imprint link are included; they previously fell back to Chrome's `1px auto` UA ring. |
 | **2.4.11** | Focus Not Obscured (Minimum) | AA | Yes | ✅ Pass | The `focusin` handler scrolls each focused control clear of the sticky chrome. All 16 measured inside the viewport at 320×256. The arrow-key handler moves focus to the adjacent tile rather than leaving it on a control it has just scrolled out of the porthole. |
 
