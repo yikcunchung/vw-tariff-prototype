@@ -86,8 +86,7 @@ export const Icon = ({ label, ...p }) =>
 
 `SC 1.3.1, 4.1.2` · **Level A**
 
-Use `aria-labelledby` pointing at the visible label — not a retyped `aria-label` (how visible text and
-accessible name drift apart; see A4). A `<select>`'s `<option>` text is not its label.
+Use `aria-labelledby` pointing at the visible label, not a retyped `aria-label` (see A4). `<option>` text is not the label.
 
 ---
 
@@ -95,8 +94,7 @@ accessible name drift apart; see A4). A `<select>`'s `<option>` text is not its 
 
 `SC 2.5.3` · **Level A**
 
-The accessible name must **contain the visible text, contiguously**. No tool checks this; verify by
-hand against the accessibility tree.
+The accessible name must **contain the visible text, contiguously**. No tool checks this; verify by hand.
 
 ```jsx
 // ✗ visible "Motor / Battery Capacity", name "Motor and battery capacity"
@@ -111,8 +109,7 @@ hand against the accessibility tree.
 
 `SC 1.3.1, 2.4.1, 2.4.6` · **Level A / AA**
 
-One `h1`; levels descend without gaps; `role="banner"` on the topbar and a `<main>`; skip link as the
-**first** tab stop pointing at an id that exists.
+One `h1`; levels descend without gaps; `role="banner"` on the topbar, a `<main>`, and a skip link as the **first** tab stop.
 
 ---
 
@@ -135,9 +132,7 @@ One `h1`; levels descend without gaps; `role="banner"` on the topbar and a `<mai
 <div class="tf-acc-panel" id="t2-ionity" hidden>…</div>
 ```
 
-Use the **`hidden` attribute** — not `display:none` in a stylesheet, not `aria-hidden` alone. Swap it
-for a CSS class and the panel keeps *looking* right while its text remains in the accessibility tree.
-Toggling must leave focus on the header; expanding must not fire a live region.
+Use the **`hidden` attribute** — not `display:none` in a stylesheet, not `aria-hidden` alone. Swap it for a CSS class and the text stays in the tree while the panel visually collapses. Toggle leaves focus on the header; expand does not fire a live region.
 
 ---
 # 2. Keyboard and focus
@@ -167,8 +162,7 @@ handler fired.
 
 `SC 4.1.2` · **Level A**
 
-**Derive the ARIA from state, never set it imperatively in one branch only.** Write the value from
-every path — keyboard, drag, click-on-track. In React: `aria-valuenow={value}`.
+**Derive ARIA from state on every path** — keyboard, drag, click-on-track. In React: `aria-valuenow={value}`.
 
 ```html
 <div role="slider" tabindex="0"
@@ -177,8 +171,7 @@ every path — keyboard, drag, click-on-track. In React: `aria-valuenow={value}`
      aria-valuenow="20" aria-valuetext="20 percent">
 ```
 
-> `Accessibility.getPartialAXTree` reports `valuetext: ""` for every ARIA widget even when
-> `aria-valuetext` is set — not a defect; verify with a real screen reader.
+> `Accessibility.getPartialAXTree` reports `valuetext: ""` for every ARIA widget — not a defect; verify with a real screen reader.
 
 ---
 
@@ -186,8 +179,7 @@ every path — keyboard, drag, click-on-track. In React: `aria-valuenow={value}`
 
 `SC 2.4.3` · **Level A**
 
-Drive real `Tab` and assert `document.activeElement` at each stop. A control repositioned with CSS
-`order` must also move in the DOM.
+Drive real `Tab` and assert `document.activeElement` at each stop; a control repositioned with CSS `order` must also move in the DOM.
 
 ---
 
@@ -195,17 +187,14 @@ Drive real `Tab` and assert `document.activeElement` at each stop. A control rep
 
 `SC 2.4.7` · **Level AA**
 
-`:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 0; }` where `--focus-ring`
-is `#c86c03`. One base rule covers **every** focusable thing including skip links. Pin
-`outline-offset: 0` — Chrome's UA sheet puts `1px` on links. Style the ring on the surrogate when the
-real control is a visually hidden `<input>`:
+`:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 0; }` where `--focus-ring` is `#c86c03`. One base rule covers **every** focusable thing; pin `outline-offset: 0` — Chrome's UA sheet puts `1px` on links. For a visually hidden `<input>` behind a styled surrogate:
 
 ```css
 .vw-switch input:focus-visible ~ .vw-switch-track { outline: 2px solid #c86c03; outline-offset: 0; }
 ```
 
 `#c86c03` is 3.75:1 on tile white and 3.44:1 on page cream, but only 2.04:1 against the CTA's
-`#ccbdab` hover fill. Never remove an outline without replacing it.
+`#ccbdab` hover fill — check the ring against the hover fill, not just resting state.
 
 ---
 
@@ -213,9 +202,7 @@ real control is a visually hidden `<input>`:
 
 `SC 2.4.11` · **Level AA**
 
-`scroll-padding-top` / `scroll-padding-bottom` equal to fixed-bar height, or a `focusin` handler.
-Measure after the scroll settles — a synchronous read right after `.focus()` catches a smooth scroll
-mid-flight.
+`scroll-padding` equal to fixed-bar height, or a `focusin` handler; measure after the scroll settles, not synchronously after `.focus()`.
 
 ---
 
@@ -252,7 +239,7 @@ Tab must cycle through every stop and out. Any panel must be escapable.
 `target-size` is `enabled: false` in axe-core 4.13.0 — enable explicitly:
 `axe.run(el, { rules: { 'target-size': { enabled: true } } })`.
 
-A transparent `::before` can enlarge the hit area without changing the visual:
+A transparent `::before` enlarges the hit area without changing the visual:
 
 ```css
 .thumb { width: 18px; height: 18px; }
@@ -300,10 +287,7 @@ Arrow keys alone satisfy this criterion for a draggable slider.
 
 `SC 1.4.3` · **Level AA**
 
-Over a gradient or image, axe returns **`incomplete`** — resolve by hand on real pixels.
-`Page.captureScreenshot` `clip` is document-absolute; crop with viewport-relative coordinates from
-`getBoundingClientRect()`. Crop to the **glyph band** (`Range.getClientRects()` over text nodes) to
-exclude the border. Take the **dominant** background, not the worst minority colour.
+Over a gradient or image, axe returns **`incomplete`** — resolve by hand. Use viewport-relative coordinates (`getBoundingClientRect()`), not document-absolute `clip`. Crop to the **glyph band** (`Range.getClientRects()` over text nodes) to exclude borders. Take the **dominant** background pixel, not the worst minority.
 
 ---
 
@@ -379,11 +363,9 @@ var tile = document.activeElement.closest('.tf-tile');
 announce(tile ? tiles.indexOf(tile) : i);
 ```
 
-**Announce even when nothing scrolled** — if a key action moves focus without moving the scroller,
-no `scroll` event fires. Call `announce()` from the key handler too.
+**Announce even when nothing scrolled** — call `announce()` from the key handler; no `scroll` event fires when focus moves without scrolling.
 
-> **Announcing the wrong thing is worse than announcing nothing.** No scanner can tell the two apart:
-> the region is present, wired and non-empty in both cases.
+> **Announcing the wrong thing is worse than announcing nothing.** The region is present, wired and non-empty in both cases.
 
 > **Keep the `.sr-only` clip.** `position:absolute; width:1px; height:1px; clip:rect(0,0,0,0);
 > clip-path:inset(50%); white-space:nowrap`. Set an explicit `color` — a clipped region inheriting a
@@ -395,28 +377,24 @@ no `scroll` event fires. Call `announce()` from the key handler too.
 
 1. **`styled-components` drops unknown props** — `aria-*` and `role` pass through on DOM elements but
    not through a custom component unless forwarded. Spread `{...rest}` onto the DOM node.
-2. **AEM `EditableComponent` injects a wrapper `<div>`** — parent-child ARIA relationships break when
-   each child becomes separately authorable. Keep a group as **one** component, or wire `aria-owns`.
-3. **Conditional rendering destroys focus** — unmounting a panel drops focus to `<body>`. Return it to
+2. **AEM `EditableComponent` injects a wrapper `<div>`** — ARIA parent-child relationships break when
+   each child is separately authorable. Keep a group as **one** component, or wire `aria-owns`.
+3. **Conditional rendering destroys focus** — unmounting a panel drops focus to `<body>`; return it to
    the opener.
-4. **`useId()` for every label association** — hand-written ids collide when a component is placed
-   twice; `duplicate-id-aria` is a real failure.
-5. **A CSS-in-JS `:focus-visible` must survive minification** — verify the ring in the built bundle.
-6. **Icons: name or hide at the component boundary** (A1) — a per-call-site decision will be missed.
-7. **Live regions must mount before they are written to** — render unconditionally; write on update.
+4. **`useId()` for every label association** — hand-written ids collide on duplicate placements;
+   `duplicate-id-aria` is a real failure.
+5. **Live regions must mount before they are written to** — render unconditionally; write on update.
 
 ---
 
 # 7. Definition of Done
 
-- [ ] **axe with `target-size` explicitly enabled** — off by default; without it CI passes SC 2.5.8
-      without testing it
+- [ ] **axe with `target-size` explicitly enabled** — off by default; SC 2.5.8 is untested without it
 - [ ] **Accessibility tree asserted** — `0` unnamed `role=image` nodes, `0` unnamed interactive nodes
-- [ ] **Real keyboard run** — Tab / Shift+Tab / Enter / Space / Arrows / Escape, asserting
-      `document.activeElement` and resulting state
-- [ ] **All states, not just the default** — expand every disclosure, select every option, re-run after each
+- [ ] **Keyboard run across all states** — Tab / Shift+Tab / Enter / Space / Arrows / Escape, asserting
+      `document.activeElement` and resulting state; expand every disclosure, select every option, re-run after each
 - [ ] **Reflow at 320×256 @ dsf 4** — nothing lost, no page-level horizontal scroll
-- [ ] **SC 2.5.3 by hand** — visible label contained in the accessible name; no tool does this
+- [ ] **SC 2.5.3 by hand** — no tool checks visible label contained in accessible name
 - [ ] **Screen reader** — one pass with NVDA or VoiceOver; not optional
 - [ ] **The suite fails when it should** — inject the defect and confirm the detector fires
 
@@ -437,19 +415,18 @@ no `scroll` event fires. Call `announce()` from the key handler too.
 # 9. Appendix — measured reference
 
 `#tf-scroller` is a named `role="group"` with `tabindex="0"` — ACT rule `0ssw9k` under SC 2.1.1.
-axe `focus-order-semantics` reports it; it maps to no WCAG criterion and 2.1.1 wins. Disclosed in
-`a11y-1-criteria.md`.
+axe `focus-order-semantics` reports it (`best-practice` + `experimental`, no WCAG criterion); 2.1.1 wins.
+Disclosed in `a11y-1-criteria.md`.
 
 **Reflow (D3) passes on the exception.** `scrollWidth == clientWidth == 320` at 320×256; tiles extend
-past the viewport entirely inside `#tf-scroller`. Replace the carousel with a plain overflowing row
-and this becomes a failure. All 16 controls measured inside the viewport — the `focusin` handler (not
-CSS `scroll-padding`) is what keeps them clear of sticky chrome; re-verify any CSS-only port.
+past the viewport inside `#tf-scroller` only — replace with a plain overflowing row and this becomes a
+failure. All 16 controls sit inside the viewport; the `focusin` handler (not `scroll-padding`) keeps
+them clear of sticky chrome.
 
-**Arrow keys inside a tile step the carousel; focus must follow.** Stepping alone strands focus on a
-tile that has scrolled out of the porthole. Focus moves to the matching control in the adjacent tile
-(index clamped; tile 1 has one accordion, the others two). The handler returns before `preventDefault`
-at the first and last tile so arrows fall through to native scrolling.
+**Arrow keys step the carousel; focus must follow.** Stepping alone strands focus on a tile that has
+scrolled out of the porthole. The handler moves focus to the matching control in the next tile,
+returning before `preventDefault` at the ends so arrows fall through to native scrolling.
 
 **Duplicate visible strings, unique names.** Eleven controls carry unique names suffixed with the tier
-("PDF Download — We Charge Pro"). Visible text appears verbatim at the start — 2.5.3 holds.
+("PDF Download — We Charge Pro"); visible text is verbatim at the start — 2.5.3 holds.
 **Suffix for uniqueness; never replace the visible text.**
