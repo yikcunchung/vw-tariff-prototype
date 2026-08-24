@@ -62,11 +62,11 @@ The local `index.html` and the deployed build are **byte-identical**.
 
 ### NVDA vs VoiceOver — a deviation to record
 
-VoiceOver is planned instead of NVDA. Record that as a **deviation**, not a substitution. The two
-disagree exactly where this app is interesting: a `<select>` named via `aria-labelledby`, live-region
-politeness, and controls built from a visually hidden `<input>` behind a styled `<label>`. NVDA is
-normally tested with Firefox or Chrome, VoiceOver with Safari, so the browser differs too. Budget an
-NVDA pass before formal sign-off.
+**VoiceOver on Safari was run instead of NVDA, and is recorded as a deviation, not a substitution**
+— the run is in §9.1. The two readers disagree exactly where this app is interesting: live-region
+politeness and timing, how `aria-expanded` is voiced, and whether a hidden suffix appended to a
+visible label reads as one phrase. NVDA is normally paired with Firefox or Chrome and VoiceOver with
+Safari, so the browser differs too. **Budget an NVDA pass before formal sign-off.**
 
 ## How much is machine-decidable at all
 
@@ -773,8 +773,10 @@ That is the expectation in the previous revision of this section holding exactly
 ## 9.4 NVDA — ◐ deviation recorded, still owed
 
 **NVDA 2026.1.1.55980** is named by the protocol and has not been run; it needs Windows. VoiceOver
-is planned instead and is a **documented deviation, not a substitute** — a formal BITV / EN 301 549
-audit naming NVDA will not accept VoiceOver evidence for that line item. §1 has the reasoning.
+on Safari **was** run in its place (§9.1) and is a **documented deviation, not a substitute** — a
+formal BITV / EN 301 549 audit naming NVDA will not accept VoiceOver evidence for that line item.
+§1 has the reasoning. That run was not ceremonial: it found the live-region defect that every
+automated instrument passed.
 
 ## 9.5 The four linked PDFs — placeholders, deliberately not assessed
 
