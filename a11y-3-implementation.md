@@ -133,6 +133,35 @@ not announced. Write to it from **every** path that changes the result, not just
 must be able to emit `lang` alongside it.
 
 ---
+
+### A8 — A disclosure hides its panel from the accessibility tree, not just from view
+
+`SC 1.3.1, 4.1.2` · **Level A**
+
+```html
+<h3>
+  <button type="button" aria-expanded="false" aria-controls="t2-ionity">Ionity …</button>
+</h3>
+<div class="tf-acc-panel" id="t2-ionity" hidden>…</div>
+```
+
+Three attributes, no more: **`aria-expanded`** on the button says what state it is in,
+**`aria-controls`** says what it owns, and the **`hidden` attribute** decides whether the panel exists
+for assistive technology at all. The panel needs no `role`, and **must not be a live region.**
+
+**`hidden`, not `display:none` in a stylesheet, and never `aria-hidden` alone.** This is the one that
+breaks silently in a framework port: swap the attribute for a CSS class and the panel keeps *looking*
+right while its text stays in the accessibility tree. A screen-reader user then meets content that is
+not on screen, and the collapsed text also turns up in heading and text search. Verified here by
+counting text nodes in the tree — 10 with three panels closed, 16 with all seven open, and the string
+"IONITY prices vary depending on your tariff" appearing only after expanding.
+
+> **Do not announce the revealed content.** Expanding must not fire a live region. The reader
+> announces the button's new state — *"expanded"* — and the user then browses in. Auto-announcing
+> talks over the user's own navigation and becomes unusable for anything longer than a sentence.
+> Toggling must also leave focus on the header; moving it is a separate defect.
+
+---
 # 2. Keyboard and focus
 
 ### B1 — Everything the mouse can do, the keyboard can do
