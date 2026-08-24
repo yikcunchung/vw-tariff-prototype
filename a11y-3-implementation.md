@@ -5,9 +5,9 @@ styled-components.
 **Companions:** `a11y-1-criteria.md` (every criterion, pass/fail) ·
 `a11y-2-automated-testing.md` (what the tools can and cannot prove).
 
-**How to read this:** sections 1–6 are **prescriptive** — they are the contract the port must meet,
-not a description of the current build. Section 7 is **descriptive**: what the reference measurably
-does today, for diffing against.
+**How to read this:** sections 1–7 are **prescriptive** — they are the contract the port must meet,
+not a description of the current build. Sections 8–9 are **descriptive**: what is still open, and
+what the reference measurably does today, for diffing against.
 
 **BLUF:** Build the tariff carousel so keyboard, screen-reader and pointer users can operate it
 safely. Treat the vanilla reference as a behavioural spec, **not** as DOM to copy — a meaningful
@@ -56,6 +56,18 @@ a clean bill: both are cases where the required toolchain agreed, and was not en
 
 ---
 # 1. Semantics and naming
+
+| Rule | Requirement | SC |
+|---|---|---|
+| **A1** | Every inline `<svg>` is named or `aria-hidden` | 1.1.1 |
+| **A2** | An icon-only control has a real accessible name | 4.1.2 |
+| **A3** | A `<select>` is named by its visible label | 1.3.1, 4.1.2 |
+| **A4** | The visible label sits inside the accessible name, verbatim and first | 2.5.3 |
+| **A5** | One `h1`, no skipped levels, real landmarks | 1.3.1, 2.4.6 |
+| **A7** | `lang` on the document, and on any passage that differs | 3.1.1, 3.1.2 |
+| **A8** | A disclosure hides its panel from the accessibility tree, not just from view | 1.3.1, 4.1.2 |
+
+---
 
 ### A1 — Every inline `<svg>` is either named or hidden
 
@@ -139,50 +151,6 @@ skip link as the **first** tab stop, pointing at an id that exists.
 
 ---
 
-### A6 — A visually hidden polite live region, updated on every path
-
-`SC 4.1.3` · **Level AA**
-
-```html
-<p id="tf-live" class="sr-only" aria-live="polite"></p>
-```
-
-The region must already be in the DOM at load — injecting it and writing to it in the same tick is
-not announced. Write to it from **every** path that changes the result, not just the common one.
-
-**One writer owns it.** Every caller goes through a single `announce(index)` function that also holds
-the last-announced value. Two callers writing directly — a scroll handler and a keyboard handler, say
-— will eventually disagree, and the user hears both.
-
-**Announce what focus is on, not what scroll position implies.** This is the rule the shipped defect
-broke. Deriving the index from `scrollLeft` gives the **leftmost visible** item, which equals the
-focused item **only when one item is visible at a time** — so it is correct at the narrow width you
-test first and wrong at every width above it.
-
-```js
-// Bad: leftmost visible item. Correct only when one item fits.
-var i = Math.round(sc.scrollLeft / step());
-
-// Good: the item focus is actually in, falling back to scroll position
-// when focus is outside the carousel — which is right for the arrow buttons.
-var tile = document.activeElement.closest('.tf-tile');
-announce(tile ? tiles.indexOf(tile) : i);
-```
-
-**Announce even when nothing scrolled.** If a keyboard action moves focus without moving the
-scroller, no `scroll` event fires — so a handler that only listens for scroll says nothing at all.
-Call `announce()` from the key handler too.
-
-> **Announcing the wrong thing is worse than announcing nothing.** Silence leaves a user to look; a
-> confident wrong answer does not. No scanner can tell the two apart: the region is present, wired
-> and non-empty in both cases.
-
-> **Keep the `.sr-only` clip.** `position:absolute; width:1px; height:1px; clip:rect(0,0,0,0);
-> clip-path:inset(50%); white-space:nowrap`. Set an explicit `color` on it — a clipped region that
-> inherits a matching colour reads as a 1:1 contrast error to WAVE even though nothing renders.
-
----
-
 ### A7 — `lang` on the document, and on any passage that differs
 
 `SC 3.1.1, 3.1.2` · **Level A / AA**
@@ -221,6 +189,18 @@ counting text nodes in the tree — 10 with three panels closed, 16 with all sev
 
 ---
 # 2. Keyboard and focus
+
+| Rule | Requirement | SC |
+|---|---|---|
+| **B1** | Everything the mouse can do, the keyboard can do | 2.1.1 |
+| **B2** | A custom widget exposes role, name **and** value, on every path | 4.1.2 |
+| **B3** | Focus order matches visual order; hidden controls leave the tab order | 2.4.3 |
+| **B4** | One visible focus indicator on every control, styled consistently | 2.4.7, 1.4.11 |
+| **B5** | A focused control is never left under sticky chrome | 2.4.11 |
+| **B6** | No keyboard trap | 2.1.2 |
+| **B7** | A scrollable region is keyboard reachable | 2.1.1 |
+
+---
 
 ### B1 — Everything the mouse can do, the keyboard can do
 
@@ -322,6 +302,14 @@ A region that scrolls must be focusable so a keyboard user can scroll it: `tabin
 ---
 # 3. Pointer and targets
 
+| Rule | Requirement | SC |
+|---|---|---|
+| **C1** | Every target is at least 24×24 CSS px | 2.5.8 |
+| **C2** | Activation happens on the up-event | 2.5.2 |
+| **C3** | Dragging always has a non-drag alternative | 2.5.7 |
+
+---
+
 ### C1 — Every target is at least 24×24 CSS px
 
 `SC 2.5.8` · **Level AA**
@@ -377,6 +365,16 @@ track. Arrow keys alone satisfy the criterion.
 
 ---
 # 4. Visual
+
+| Rule | Requirement | SC |
+|---|---|---|
+| **D1** | Text contrast ≥4.5:1, measured on composited pixels | 1.4.3 |
+| **D2** | Non-text contrast ≥3:1 | 1.4.11 |
+| **D3** | No content loss at 320×256 CSS px | 1.4.10, 1.4.4 |
+| **D4** | The text-spacing overrides must not clip anything | 1.4.12 |
+| **D5** | Never lock orientation | 1.3.4 |
+
+---
 
 ### D1 — Text contrast ≥4.5:1, measured on composited pixels
 
@@ -444,7 +442,62 @@ Nothing may newly clip, no control may be lost, no horizontal scroll may appear.
 No `@media (orientation:)` rule that hides or restricts content.
 
 ---
-# 5. React, styled-components and AEM — the ones that bite
+# 5. Announcements
+
+A live region is the only part of this app that speaks without being asked. It is also the part
+that shipped wrong, and the part no scanner can check — see **Start here**.
+
+| Rule | Requirement | SC |
+|---|---|---|
+| **A6** | One writer owns a visually hidden polite region; it announces what **focus** is on, and it speaks even when nothing scrolled | 4.1.3 |
+
+---
+
+### A6 — A visually hidden polite live region, updated on every path
+
+`SC 4.1.3` · **Level AA**
+
+```html
+<p id="tf-live" class="sr-only" aria-live="polite"></p>
+```
+
+The region must already be in the DOM at load — injecting it and writing to it in the same tick is
+not announced. Write to it from **every** path that changes the result, not just the common one.
+
+**One writer owns it.** Every caller goes through a single `announce(index)` function that also holds
+the last-announced value. Two callers writing directly — a scroll handler and a keyboard handler, say
+— will eventually disagree, and the user hears both.
+
+**Announce what focus is on, not what scroll position implies.** This is the rule the shipped defect
+broke. Deriving the index from `scrollLeft` gives the **leftmost visible** item, which equals the
+focused item **only when one item is visible at a time** — so it is correct at the narrow width you
+test first and wrong at every width above it.
+
+```js
+// Bad: leftmost visible item. Correct only when one item fits.
+var i = Math.round(sc.scrollLeft / step());
+
+// Good: the item focus is actually in, falling back to scroll position
+// when focus is outside the carousel — which is right for the arrow buttons.
+var tile = document.activeElement.closest('.tf-tile');
+announce(tile ? tiles.indexOf(tile) : i);
+```
+
+**Announce even when nothing scrolled.** If a keyboard action moves focus without moving the
+scroller, no `scroll` event fires — so a handler that only listens for scroll says nothing at all.
+Call `announce()` from the key handler too.
+
+> **Announcing the wrong thing is worse than announcing nothing.** Silence leaves a user to look; a
+> confident wrong answer does not. No scanner can tell the two apart: the region is present, wired
+> and non-empty in both cases.
+
+> **Keep the `.sr-only` clip.** `position:absolute; width:1px; height:1px; clip:rect(0,0,0,0);
+> clip-path:inset(50%); white-space:nowrap`. Set an explicit `color` on it — a clipped region that
+> inherits a matching colour reads as a 1:1 contrast error to WAVE even though nothing renders.
+
+---
+
+# 6. React, styled-components and AEM — the ones that bite
 
 1. **`styled-components` drops unknown props.** `aria-*` and `role` pass through on DOM elements but
    **not** through a custom component unless you forward them. Spread `{...rest}` onto the DOM node.
@@ -464,7 +517,7 @@ No `@media (orientation:)` rule that hides or restricts content.
 
 ---
 
-# 6. Definition of Done
+# 7. Definition of Done
 
 - [ ] **axe with `target-size` explicitly enabled** — it is off by default, so without that line CI
       passes SC 2.5.8 without ever testing it
@@ -483,7 +536,27 @@ No `@media (orientation:)` rule that hides or restricts content.
 
 ---
 
-# 7. App-specific notes
+# 8. What is still open
+
+Nothing here blocks the port. All four are recorded so they are not discovered late.
+
+- **NVDA 2026.1.1.55980 has not been run.** It needs Windows. VoiceOver on Safari was run in full and
+  found the live-region defect, but it is a **deviation, not a substitute** — a formal BITV /
+  EN 301 549 audit naming NVDA will not accept VoiceOver evidence for that line item.
+- **The per-node selectors for the three axe DevTools Pro findings have not been captured.** All
+  three are attributed to the topbar by the tester; that attribution is not yet element-verified. If
+  any resolves inside `#tf-main` it is an in-scope finding and `a11y-2` §9.3 changes.
+- **The topbar is not implemented.** Its icons are inert `<div>`s. When it is built for real, **A2**
+  (icon-only names), **B1** (keyboard) and **C1** (24×24) all apply to it, and the three Pro findings
+  become live.
+- **The four linked PDFs are placeholders** — untagged, no `/Lang`, one shared title. They are
+  outside this pack. When real tariff documents replace them they become a conformance surface under
+  **EN 301 549 clause 10** and each needs a **PAC 26.1.0.0** pass. Do not assume the real ones will
+  be tagged just because these are not.
+
+---
+
+# 9. Appendix — measured reference
 
 **The horizontal carousel is the interesting part, and it is built correctly.** `#tf-scroller` is a
 named `role="group"` with `tabindex="0"`, so a keyboard user can scroll it — that is ACT rule

@@ -68,6 +68,27 @@ politeness, and controls built from a visually hidden `<input>` behind a styled 
 normally tested with Firefox or Chrome, VoiceOver with Safari, so the browser differs too. Budget an
 NVDA pass before formal sign-off.
 
+## How much is machine-decidable at all
+
+Of the **56** A/AA criteria, **24 have no machine-testable ACT rule** — and several of those apply
+directly here: 1.4.11, 1.4.13, 2.5.1, 2.5.2, 2.5.8, 2.4.11. For those, "passes" is a **judgement**,
+not a test result, and `a11y-1` records which ones an auditor could challenge.
+
+**The gap is not evenly spread.** Naming and structure are well covered by rules; behaviour, meaning
+and announcement are barely covered at all.
+
+| Question | Can a tool answer it? |
+|---|---|
+| Does every control have a name? | **Yes** — axe, and the accessibility tree definitively |
+| Is the name *unique*? | **Yes** — duplicate role+name pairs are countable |
+| Is the name **correct**? | **No.** `alt="Volkswagen"` on an ID.3 Neo passes every check |
+| Does the visible label sit inside it? | **No.** axe-core ships **no `label-in-name` rule** — SC 2.5.3 was settled by ear |
+| Is the reading order sensible? | **No.** The `<dl>` pairing was confirmed by listening |
+| Does the live region say the right thing? | **No.** It said the wrong tariff and every tool passed it |
+
+**That last row is this app's whole argument.** Six of the eight instruments in the required
+toolchain were clean on a build that was actively misinforming a screen-reader user.
+
 ---
 
 # 2. Results
@@ -421,6 +442,18 @@ Tick only what you observed. **An untested box is not a pass.**
 **Write down the actual utterances and counts, not a pass/fail.** A tick against "announces
 correctly" is not evidence a BITV auditor can use; the transcript is.
 
+## Sign-off
+
+- [ ] All three runs done, each with tool version, browser, OS, viewport, date and live-or-local.
+- [ ] Every failure triaged as **in scope (`#tf-main`)** or **topbar**. A topbar failure is recorded,
+      not fixed, and not counted against this app — see §0.
+- [ ] **VoiceOver recorded as a deviation from NVDA 2026.1.1.55980**, not a substitute — a formal
+      BITV / EN 301 549 audit naming NVDA will not accept it, so an NVDA pass is still owed.
+- [ ] The linked PDFs are recorded as **placeholders**, and it is stated that clause 10 and a PAC
+      pass apply the moment real tariff documents replace them.
+- [ ] Only once all of the above holds may §10 drop *"except NVDA"* — and **"fully compliant" remains
+      unavailable regardless** while the four linked documents are untagged placeholders.
+
 ---
 
 # 8. Re-running the automated suite
@@ -646,7 +679,7 @@ three panels stop being hidden (§2).
 **Run 2 is complete:** two engines, two invocation methods, two content states, and the same six
 numbers every time.
 
-## 9.3 axe DevTools — ◐ UI run done 2026-08-24 (Pro); 3 findings on the out-of-scope topbar, 1 guided test still owed
+## 9.3 axe DevTools — ◐ UI run done 2026-08-24 (Pro); 3 findings, all on the out-of-scope topbar
 
 Run through the **axe DevTools Pro** extension UI against the live URL. Settings recorded, because
 they determine whether the number means anything: **WCAG 2.2 AA**, **Best Practices ON**,
