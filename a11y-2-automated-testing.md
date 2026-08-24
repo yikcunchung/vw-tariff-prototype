@@ -72,6 +72,13 @@ Viewports: 1440×900, 768×1024, 390×844, 320×640, and 320×256 @ dsf 4 (liter
 | JS exceptions | **0** |
 | Horizontal scroll | none, at any viewport |
 
+**Both accordion states scanned, not just the default one.** Four of the seven accordions ship
+`aria-expanded="true"` ("Emission standard") and three ship collapsed ("Ionity"). Clicking the three
+open and re-running at 1440 / 390 / 320×256 @ dsf 4 gives the **same result**: 0 violations in scope,
+`target-size` 14 pass, 0 JS exceptions. The only figure that moves is the `hidden-content`
+*incomplete* count, 12 → 9 and 16 → 13 — exactly the three panels that stopped being hidden, which is
+the detector confirming it noticed the state change rather than scanning the same DOM twice.
+
 > **Force-enabling *every* rule raises the run to 107** — the 97 above plus the AAA and
 > best-practice sets. That surfaces exactly two, both outside the A + AA target and both
 > present before any of the current markup: `color-contrast-enhanced` (SC 1.4.6, **AAA**)
@@ -93,16 +100,23 @@ Viewports: 1440×900, 768×1024, 390×844, 320×640, and 320×256 @ dsf 4 (liter
 
 | Errors | Contrast errors | Alerts | Features | Structure | ARIA |
 |---|---|---|---|---|---|
-| **0** | **0** | 0 | 29 | 16 | 26 |
+| **0** | **0** | **4** | 29 | 16 | 26 |
+
+Re-run **2026-08-24** against the current build. The run was confirmed to have analysed *this* markup,
+not a cached one: the iframe reported 4 tiles, **4 `a.tf-cta[download]`**, 7 accordions and the
+`announce(idx)` fix present.
+
+**All four alerts are `link_pdf`** — WAVE's "Link to PDF document", one per tariff CTA. It is a prompt
+to confirm the linked document is accessible, not a fault in the page, and it is **new only because
+the CTAs became real PDF links**. It points straight at §9.5: the four targets are placeholders and
+are untagged. WAVE reached that conclusion independently of the structural read, which is worth
+something — two different methods, same finding.
 
 The run was confirmed to have analysed the real page — control count and document title were read
 back out of WAVE's iframe, not assumed.
 
-> ⚠️ **This row predates the current markup and has not been re-run.** WAVE needs a public URL,
-> and the tile footers, the focus ring and the legal label have changed since. Re-run it against
-> the Pages deployment before quoting these numbers. Nu **was** re-run against the current file:
-> **0 errors**, one info-level warning (`the "list" role is unnecessary for element "ul"`, kept
-> deliberately for Safari).
+> Nu was also re-run against the current file: **0 errors**, one info-level warning (`the "list" role
+> is unnecessary for element "ul"`, kept deliberately for Safari).
 
 ## Nu HTML validator — 0 errors
 
@@ -570,12 +584,54 @@ the other three tiles carry a description sentence instead.
 
 **NVDA remains untouched** — §9.4. VoiceOver on Safari is a **deviation recorded, not a substitute**.
 
-## 9.2 WAVE — ⚠️ stale, needs re-running
+## 9.2 WAVE — ✅ complete (hosted + extension, both accordion states), 2026-08-24
 
-A hosted run exists and is recorded in §2 (**0 errors, 0 contrast errors, 0 alerts, 29 features,
-16 structure, 26 ARIA**) — but it predates the PDF-download CTA, the shared focus ring and the
-legal-label fix. **Re-run it against the live URL and overwrite that row.** The extension run — the
-all-accordions-expanded state, which hosted WAVE cannot reach — has never been done.
+**Hosted run, real engine, against the live URL**, polled until the icon counts went *stable* — reading
+early returns zeros that look like a clean pass.
+
+| Errors | Contrast | Alerts | Features | Structure | ARIA |
+|---|---|---|---|---|---|
+| **0** | **0** | **4** | 29 | 16 | 26 |
+
+Verified to have analysed the current build, not a cache: 4 tiles, 4 `a.tf-cta[download]`, 7
+accordions, `announce(idx)` present.
+
+**The 4 alerts are all `link_pdf`**, one per tariff CTA — "Link to PDF document". Expected, and new
+only because the CTAs became real links. Not a page fault; it is WAVE asking whether the *document* is
+accessible, which §9.5 answers: placeholders, untagged. **A second engine reaching the same conclusion
+as the structural read is worth recording** — the two methods agree.
+
+The breakdown corroborates the accessibility-tree figures line for line: `h1 x1, h2 x4, h3 x7` (the 12
+headings), `dl x1` (only the Pro tile has rate rows), `aria_expanded x7` (the 7 accordions),
+`aria_live_region x1` (`#tf-live`), `lang x1`, `alt_null x25` (the decorative images).
+
+### Extension run — default state, 2026-08-24
+
+Run with the browser extension against the live page, **"Ionity" accordions collapsed** (the shipped
+default: 4 of 7 expanded).
+
+| Errors | Contrast | Alerts | Features | Structure | ARIA |
+|---|---|---|---|---|---|
+| **0** | **0** | **4** | 29 | 16 | 26 |
+
+**Identical to the hosted run, figure for figure.** That closes the §7 checkbox asking whether hosted
+and extension agree — they do, so neither result rests on a quirk of how WAVE was invoked.
+
+### Extension run — all seven accordions expanded, 2026-08-24
+
+The state hosted WAVE cannot reach, and the reason the extension run exists at all.
+
+| Errors | Contrast | Alerts | Features | Structure | ARIA |
+|---|---|---|---|---|---|
+| **0** | **0** | **4** | 29 | 16 | 26 |
+
+**Identical again.** Opening the three "Ionity" panels reveals prose, which adds no WAVE icon of any
+kind, so the counts holding is the correct result rather than a suspicious one. axe agrees — run in
+both states it returns the same verdict, with only the `hidden-content` incomplete count moving as the
+three panels stop being hidden (§2).
+
+**Run 2 is complete:** two engines, two invocation methods, two content states, and the same six
+numbers every time.
 
 ## 9.3 axe DevTools — ◐ engine covered, UI not run
 
@@ -608,10 +664,12 @@ only thing verified here is that **the link resolves and the download starts.**
 
 # 10. The claim this evidence supports
 
-> *"This app meets WCAG 2.2 A/AA on **every automated check available** — axe-core 4.13.0 over CDP
-> with every rule force-enabled, the accessibility tree, real key and pointer events, the Nu
-> validator and literal 400% zoom, across five viewports — with **one discretionary decision
-> recorded** and **all manual verification still outstanding**."*
+> *"This app meets WCAG 2.2 A/AA on **every check the protocol names except NVDA and the axe DevTools
+> UI** — axe-core 4.13.0 over CDP with every rule force-enabled, across five viewports and **both
+> accordion states**; WAVE 3.3.1.0 hosted **and** by extension, in both states; the accessibility tree;
+> real key and pointer events; the Nu validator; literal 400% zoom; and a **VoiceOver pass on Safari**
+> — all against the live deployment, with **one discretionary decision recorded**, **one defect found
+> by the VoiceOver pass and fixed**, and **NVDA still outstanding**."*
 
 **What it must not say: "fully compliant."** Three specific reasons, not hedging:
 
@@ -619,8 +677,9 @@ only thing verified here is that **the link resolves and the download starts.**
    Safari passed (§9.1) — including SC 2.5.3, which no tool can test. But **NVDA 2026.1.1.55980 is
    named by the protocol and has not been run**, and readers differ in what they announce. VoiceOver
    is a **deviation recorded, not a substitute**.
-2. **The WAVE evidence describes an older build.** A second, independent engine agreeing is a real
-   part of the claim; a second engine agreeing about *different markup* is not.
+2. **The axe DevTools UI pass has not been made.** The protocol names build **4.131.2**; what has run
+   is **axe-core 4.13.0**, the library that build embeds, driven over CDP (§9.3). Expect agreement —
+   but a build number is not an engine version, and the protocol names the build.
 3. **One decision rests on a reading an auditor may reject** — the SC 1.4.11 focus ring at 2.04:1
    against the CTA's hover fill. It is written down in `a11y-1-criteria.md` rather than smoothed over.
 
