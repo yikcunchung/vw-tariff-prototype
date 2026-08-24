@@ -843,8 +843,25 @@ html { scroll-padding-top: 72px; }
        which otherwise leaves an arrow up at a hard end. */
     var atStart = sc.scrollLeft <= 1;
     var atEnd   = sc.scrollLeft >= maxScroll - 1;
-    prev.hidden = !scrollable || atStart;
-    next.hidden = !scrollable || atEnd;
+
+    /* Rehome focus BEFORE hiding the arrow that holds it. Hiding a focused element
+       drops document.activeElement to <body>, which dumps a keyboard user at the top
+       of the document mid-task — measured: one press of the next arrow at 1440, three
+       at the narrower widths. Move to the opposite arrow if it will still be visible,
+       otherwise to the scroller itself, which is a named role="group" with tabindex="0"
+       and therefore a legitimate place to land. */
+    var nextPrevHidden = !scrollable || atStart;
+    var nextNextHidden = !scrollable || atEnd;
+    var active = document.activeElement;
+    if ((nextPrevHidden && active === prev) || (nextNextHidden && active === next)) {
+      var fallback = (active === next && !nextPrevHidden) ? prev
+                   : (active === prev && !nextNextHidden) ? next
+                   : sc;
+      fallback.focus({ preventScroll: true });
+    }
+
+    prev.hidden = nextPrevHidden;
+    next.hidden = nextNextHidden;
     fadeL.classList.toggle('is-off', !scrollable || atStart);
     fadeR.classList.toggle('is-off', !scrollable || atEnd);
 
