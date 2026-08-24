@@ -4,8 +4,13 @@
 **Audited:** 2026-08-24 against the current source.
 **Deployed at:** https://yikcunchung.github.io/vw-tariff-prototype/
 **Scope:** the whole page. This app is standalone, so there is no component-versus-page split and
-nothing is out of scope. **PDFs are excluded** — the app ships none; they would be a separate
-conformance surface under EN 301 549 clause 10, checked with PAC.
+nothing is out of scope. **PDFs are now a linked surface, and that changes the scope.** Each tile's
+CTA is an `<a href="assets/*.pdf" download>`, so four PDFs are part of what this page offers. The
+*documents themselves* remain a separate conformance surface under **EN 301 549 clause 10**, checked
+with **PAC** — not by anything in this pack. The four files now in `assets/` are **placeholders,
+there so the download can be demonstrated**; they are untagged and unassessed (`a11y-2` §9.5).
+Nothing in this table depends on them. When real tariff documents replace them, clause 10 and PAC
+apply to those.
 **Companion documents:** `a11y-2-automated-testing.md` (what the tools can and cannot prove) ·
 `a11y-3-implementation.md` (what to build).
 
@@ -83,7 +88,7 @@ criteria are not required and are not listed.
 
 | SC | Name | Lvl | Relevant | Status | Evidence / what to do |
 |---|---|---|---|---|---|
-| **2.1.1** | Keyboard | A | Yes | ✅ Pass | All 16 stops operable by keyboard, including the 7 accordions and prev/next, driven with real key events. `ArrowLeft`/`ArrowRight` on a control inside a tile step the carousel exactly as the arrow buttons do, and focus follows to the matching control in the adjacent tile. `#tf-scroller` itself keeps the browser's native arrow scrolling. |
+| **2.1.1** | Keyboard | A | Yes | ✅ Pass | All 16 stops operable by keyboard, including the 7 accordions and prev/next, driven with real key events. The four PDF CTAs are `<a>`, so they activate on **Enter only** — correct link semantics, not a defect; `Space` scrolls the page as it should. `ArrowLeft`/`ArrowRight` on a control inside a tile step the carousel exactly as the arrow buttons do, and focus follows to the matching control in the adjacent tile. `#tf-scroller` itself keeps the browser's native arrow scrolling. |
 | **2.1.2** | No Keyboard Trap | A | Yes | ✅ Pass | No trap. Focus enters and leaves `#tf-scroller` freely; all 16 stops cycle. The arrow-key handler `preventDefault`s only between the first and last tile, so the arrows never swallow a key at either end. |
 | **2.1.4** | Character Key Shortcuts | A | No | ⚪ N/A | No single-character key shortcuts are registered. |
 
@@ -110,7 +115,7 @@ criteria are not required and are not listed.
 | **2.4.1** | Bypass Blocks | A | Yes | ✅ Pass | `a.skip-link → #tf-main`; target exists, first tab stop. |
 | **2.4.2** | Page Titled | A | Yes | ✅ Pass | `<title>Volkswagen Charging Tariffs — We Charge</title>` — descriptive and unique. |
 | **2.4.3** | Focus Order | A | Yes | ✅ Pass | Focus order is `#tf-scroller` → each tile's 2–3 controls in visual order → prev/next. Verified at 1440 and 320×256 @ dsf 4; a `focusin` handler scrolls each focused control into view (`inVP=true` for all 16). |
-| **2.4.4** | Link Purpose (In Context) | A | Yes | ✅ Pass | The 4× "PDF Download" and 7× accordion strings resolve to 11 **unique** accessible names, each suffixed with its tier — exactly what a screen-reader control list needs. 0 duplicate role+name pairs in the accessibility tree. |
+| **2.4.4** | Link Purpose (In Context) | A | Yes | ✅ Pass | Six links, six unique names. The four PDF CTAs are real `<a href download>`: the visible words say "PDF Download" so the **format is stated in the link text**, and the `.sr-only` tier suffix makes each destination unambiguous ("PDF Download — We Charge Pro"). With the 7 accordion buttons that is 11 tier-suffixed names and **0 duplicate role+name pairs** in the accessibility tree. **Not verified: that each `href` points at the right tariff's document** — the targets are placeholders, so there is nothing to check the mapping against yet. |
 | **2.4.5** | Multiple Ways | AA | No | ⚪ N/A | A standalone single page. SC 2.4.5 applies to a *set* of web pages; there is no set. |
 | **2.4.6** | Headings and Labels | AA | Yes | ✅ Pass | `h1 → h2 → h3`, no skipped levels, one `h1`. Every control name is descriptive and tier-qualified. |
 | **2.4.7** | Focus Visible | AA | Yes | ✅ Pass | **All 16 stops show the same ring** — `2px solid var(--focus-ring)` (`#c86c03`), `outline-offset: 0`, measured on every stop by driving real `Tab` keys. `.skip-link` and the Imprint link are included; they previously fell back to Chrome's `1px auto` UA ring. |

@@ -426,7 +426,8 @@ through to native scrolling rather than dead-ending. `#tf-scroller` itself is de
 alone: its native arrow scrolling is what earns it its SC 2.1.1 tab stop.
 
 **Duplicate visible strings, unique names — this is the pattern to copy.** Four tiles each show
-"PDF Download" and "Emission standard". Eleven controls, eleven *unique* accessible names, each
+"PDF Download" and "Emission standard". Eleven controls — 7 accordion `<button>`s and 4 PDF
+`<a href download>`s — eleven *unique* accessible names, each
 suffixed with its tier ("PDF Download — We Charge Pro"). The visible text is contained verbatim and
 at the start, so 2.5.3 holds and a screen-reader control list is still navigable. **Suffix for
 uniqueness; never replace the visible text.**
