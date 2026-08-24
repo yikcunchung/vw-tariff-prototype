@@ -815,6 +815,18 @@ html { scroll-padding-top: 72px; }
   }
 
   var lastIndex = -1;
+
+  /* Single writer for the live region, so the two callers -- a scroll and an
+     arrow-key focus move -- can never announce twice or contradict each other.
+     The lastIndex !== -1 guard keeps the first call, during init, silent. */
+  function announce(idx) {
+    if (idx < 0 || idx > names.length - 1 || idx === lastIndex) { return; }
+    if (lastIndex !== -1 && live) {
+      live.textContent = names[idx] + ', tariff ' + (idx + 1) + ' of ' + names.length;
+    }
+    lastIndex = idx;
+  }
+
   function sync() {
     var maxScroll = sc.scrollWidth - sc.clientWidth;
     var scrollable = maxScroll > 2;
@@ -846,12 +858,16 @@ html { scroll-padding-top: 72px; }
       else { d.removeAttribute('data-active'); }
     });
 
-    if (i !== lastIndex) {
-      if (lastIndex !== -1 && live) {
-        live.textContent = names[i] + ', tariff ' + (i + 1) + ' of ' + names.length;
-      }
-      lastIndex = i;
-    }
+    /* Announce the tile FOCUS is in, falling back to the leftmost visible one.
+       The dots above stay on `i` -- they mirror scroll position, which is what a
+       position indicator should do. The live region must not: once arrow keys move
+       focus between tiles, `i` is the leftmost VISIBLE tile, which is only the
+       focused tile when a single tile fits. At 960px and wider it lags behind by
+       one or two, so the region announced "We Charge Go" while focus sat on Pro --
+       a contradiction that is worse than saying nothing. */
+    var ae = document.activeElement;
+    var ft = (ae && typeof ae.closest === 'function') ? ae.closest('.tf-tile') : null;
+    announce(ft ? tiles.indexOf(ft) : i);
   }
 
   var pending = false;
@@ -909,6 +925,9 @@ html { scroll-padding-top: 72px; }
     var peer  = there[Math.min(here.indexOf(el), there.length - 1)] ||
                 tiles[to].querySelector('.tf-acc-btn, .tf-cta');
     if (peer) { peer.focus(); }
+    /* Announce here too: when all four tiles fit, focus moves without scrolling,
+       so no scroll event fires and sync() would never speak at all. */
+    announce(to);
   });
 
   sync();

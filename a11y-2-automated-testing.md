@@ -429,11 +429,121 @@ is exactly what scores clean on a build with a Level A naming failure.
 **Nothing in this section has been run against the current build.** The headings below are slots,
 not results. The automated evidence in §2 is current as of 2026-08-24; the manual evidence is not.
 
-## 9.1 Screen reader — ❌ not done
+## 9.1 Screen reader — ◐ VoiceOver / Safari, partial (2026-08-24)
 
-No screen-reader pass has been recorded for this app — not VoiceOver, not NVDA. §5 is why that
-matters: the accessibility tree proves what is *exposed*, never what is *announced*. This app's
-whole naming strategy leans on that distinction, so it is the most valuable run of the three.
+**VoiceOver on Safari, against the live deployment**, freshness-checked before the run
+(`grep -c 'tf-cta-ico'` → 6). Captured from the VoiceOver caption panel. **Partial: the naming and
+navigation half is done, the behaviour half is not** — see "still outstanding" below.
+
+### What was heard
+
+| # | Control | Spoken | Verdict |
+|---|---|---|---|
+| 5 | `.tf-cta`, tile 1 | **"link, PDF Download — We Charge Basic"** | ✅ role and name both correct |
+| 5 | `.tf-cta`, tile 1 (hint) | "You are currently on a link. To click this link, press Control-Option-Space." | ✅ exposed as a link, with an activation hint |
+| 6 | `.tf-acc-btn`, tile 2 | **"Emission standard — We Charge Go, expanded, button"** | ✅ name, **state** and role all spoken |
+| 12 | `.tf-acc-btn`, tile 4 | **"Emission standard — We Charge Pro, expanded, button"** | ✅ same pattern, different tier |
+
+### Rotor censuses — all four as predicted
+
+| Rotor | Expected | Heard | |
+|---|---|---|---|
+| Links | 6 | **6** | ✅ |
+| Headings | 12 | **12** | ✅ |
+| Form Controls | 8 | **8** | ✅ |
+| Landmarks | 3 | **3** | ✅ |
+
+The six links were confirmed as *Skip to main content*, *Imprint*, and the four *PDF Download — We
+Charge {Basic, Go, Plus, Pro}*.
+
+### What this settles
+
+- **SC 2.5.3 Label in Name — the criterion no tool can test.** "PDF Download — We Charge Basic" is
+  the visible string spoken **verbatim and first**, tier appended after it. The pattern the pack
+  relies on is **append, never splice**, and by ear it holds. Nala's `#nala-wea` failure was the same
+  construct done wrong — a hidden word wedged *between* two visible ones. This one is clean.
+- **SC 2.4.4 / 4.1.2 — four identical visible strings, four distinguishable controls.** The Links
+  rotor is the exact surface where this would fail: a user jumping by link would meet four entries
+  reading "PDF Download" and have to guess. Instead all four carry their tier. **The `.sr-only`
+  suffix does the job it was added for.**
+- **The `<button>` → `<a href download>` conversion is correctly exposed.** VoiceOver says *link*,
+  not *button*, and offers the link activation hint.
+- **Form Controls = 8, not 12.** The four PDF CTAs are absent from Form Controls *and* present in
+  Links — correct for anchors, and why §7 tells a tester to check the right rotor.
+- **Accordion state is announced.** "…, **expanded**, button" — the `aria-expanded` on the button is
+  reaching the reader, and the tier suffix works on the accordions exactly as it does on the links.
+  Both captures were of an "Emission standard" header, which ships **open**; an "Ionity" header ships
+  **closed** and should say *collapsed*.
+
+> **Expect VoiceOver's own cursor, not the orange ring, in any screenshot taken with VO running.** The
+> black rounded-rectangle outline in the captures is the VO cursor drawn over the page. When the VO
+> cursor is moved with `VO`+arrows, DOM focus does not move, so `:focus-visible` never matches and the
+> `#c86c03` ring is legitimately absent. The ring itself was confirmed separately at all 16 stops by
+> driving real `Tab` keys — §2. Do not read its absence here as a regression.
+
+### Behaviour observed
+
+| Action | Result | Verdict |
+|---|---|---|
+| `Enter` on a PDF link | download starts | ✅ the link does its job |
+| `Space` on a PDF link | nothing happens | ✅ correct link semantics — `Space` is not a link activator |
+| `ArrowRight`, focus on an "Emission standard" accordion | focus moves to **the "Emission standard" accordion of the next tile** | ✅ the peer-matching is working as designed |
+| `VO+Space` on an "Ionity" header | says **collapsed**, and focus stays on the header | ✅ both states reach the reader; toggling does not move focus |
+| `ArrowRight` at 4-tiles-visible width | **nothing announced**, then the *wrong tariff* announced | ❌ **defect — found by this run, now fixed.** See below |
+
+**On that last row — this is the behaviour the handler was written for, not a coincidence.** Arrow keys
+step the carousel *and* carry focus to the **matching control in the adjacent tile**: same class, same
+index within that class. Stepping alone would have stranded focus on a control that had just scrolled
+out of the porthole, which is an SC 2.4.11 problem. Landing on the next tile's *equivalent* control is
+the whole point. Tile 1 has one accordion and the others have two, so the index is clamped rather than
+assumed.
+
+### The defect this run found
+
+**The live region announced a tariff the user was not on.** `#tf-live` derived its index from
+`sc.scrollLeft` — the **leftmost visible** tile — which is only the focused tile when a single tile
+fits. Measured before the fix:
+
+| Width | Focus landed on | `#tf-live` said |
+|---|---|---|
+| 1440 | Pro | "We Charge **Go**, tariff 2 of 4" |
+| 960 | Plus | "We Charge **Go**, tariff 2 of 4" |
+| 960 | Pro | "We Charge **Plus**, tariff 3 of 4" |
+| 390 | Go / Plus / Pro | correct — one tile fits, so leftmost *is* focused |
+
+At 1440 the first two presses announced **nothing at all**, because all four tiles already fit and
+`scrollLeft` never moved, so no `scroll` event fired and `sync()` never ran.
+
+**Why this was invisible to every automated pass.** The region was never empty, never unlabelled and
+never mis-wired; it faithfully announced a *real* tile index. Only a human moving focus and listening
+could notice it was the **wrong** one. Announcing a tariff you are not on is worse than silence.
+
+**Fix.** A single `announce(idx)` writer now owns the region, and the index is **the tile focus is in**,
+falling back to the leftmost visible tile when focus is outside the carousel — which is still right for
+the prev/next buttons. The arrow-key handler calls it directly, so it speaks even when nothing scrolls.
+The dots keep using the scroll-derived index; a position indicator *should* mirror scroll. Verified at
+1440 / 1280 / 960 / 390: the announcement matches the focused tile at every width.
+
+**This is the single strongest argument in the pack for manual testing.** It was introduced by the
+arrow-key feature, shipped past a clean axe run at 107 rules, a clean AX tree and 16 verified tab
+stops, and was caught by one person pressing an arrow key and listening.
+
+### Still outstanding in this run
+
+Three things, all narrow:
+
+**One thing only.** The `<dl>` rate rows: whether each rate label stays paired with its value when
+browsing with the virtual cursor, or whether the term/definition pairs interleave. SC 1.3.1 / 1.3.2,
+and no tool supplies it.
+
+Two facts that make this easier to test than it looks: the rows are `<dt>`/`<dd>`, so they are
+**correctly not focusable** and are reached with `VO+Right`, not `Tab`; and **only the Pro tile has
+them** — the page holds exactly one `<dl>`, 5 pairs. The other three tiles carry a sentence instead.
+
+**Re-run the whole of Run 1 after the live-region fix deploys.** The utterances above were captured
+against the build before it.
+
+**NVDA remains untouched** — §9.4. VoiceOver on Safari is a **deviation recorded, not a substitute**.
 
 ## 9.2 WAVE — ⚠️ stale, needs re-running
 
