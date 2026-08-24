@@ -57,7 +57,7 @@ The local `index.html` and the deployed build are **byte-identical**.
 | **NVDA 2026.1.1.55980** | ◐ **Deviation** | VoiceOver run instead — §9.1. **The one instrument still owed** |
 | **PAC 26.1.0.0** | ⚪ **Not applicable — for now** | The four linked PDFs are **placeholders** (§9.5). Flips to required when real documents replace them — clause 10 applies and the placeholders are untagged |
 
-VoiceOver on Safari was run instead of NVDA and is a **deviation, not a substitution**. The two readers disagree exactly where this app is interesting: live-region timing, `aria-expanded` voicing, hidden-suffix handling. **Budget an NVDA pass before formal sign-off.**
+VoiceOver on Safari was run instead of NVDA and is a **deviation, not a substitution** — the two readers disagree on live-region timing, `aria-expanded` voicing and hidden-suffix handling. **Budget an NVDA pass before formal sign-off.**
 
 ## How much is machine-decidable at all
 
@@ -92,10 +92,10 @@ Viewports: 1440×900, 768×1024, 390×844, 320×640, and 320×256 @ dsf 4 (liter
 | JS exceptions | **0** |
 | Horizontal scroll | none, at any viewport |
 
-**Both accordion states scanned.** Re-running at 1440 / 390 / 320×256 @ dsf 4 with the three
-"Ionity" accordions toggled gives the **same result**: 0 violations, `target-size` 14 pass, 0 JS
-exceptions. The `hidden-content` *incomplete* count moves 12 → 9 and 16 → 13 — the three panels
-that stopped being hidden, confirming the scanner noticed the state change.
+**Both accordion states scanned.** Re-running with the three "Ionity" accordions toggled at
+1440 / 390 / 320×256 @ dsf 4: **same result** — 0 violations, `target-size` 14 pass, 0 JS
+exceptions. The `hidden-content` *incomplete* count moves 12 → 9 and 16 → 13 (the three panels now
+visible), confirming the scanner noticed the state change.
 
 > Force-enabling **every** rule raises the run to **107**. Two extras surface: `color-contrast-enhanced`
 > (SC 1.4.6, **AAA**) and `focus-order-semantics` (best-practice, no SC). Neither is a finding against
@@ -220,24 +220,24 @@ them. Write down what happened; grade it against §7 afterwards.**
 ## Step 0 — before any tool, every single run
 
 1. Decide **live** (`https://yikcunchung.github.io/vw-tariff-prototype/`, verify: `curl -s <url> | grep -c 'tf-cta-ico'` → **6**) or **local** (`python3 -m http.server 7820`; hosted WAVE cannot reach localhost).
-2. **Confirm on screen:** four tariff tiles, one PDF Download button per tile, seven accordion headers, and the next arrow.
-3. **Set the window width deliberately and write it down.** 1 tile below 960px, 2 at 960, 3 at 1280, 4 at 1600+ where both arrows disappear.
+2. **Confirm on screen:** four tiles, one PDF Download per tile, seven accordion headers, next arrow.
+3. **Set the window width deliberately and write it down.** 1 tile below 960, 2 at 960, 3 at 1280, 4 at 1600+ where both arrows disappear.
 4. **Write down:** browser + version, OS version, window size, date, live or local.
 
 ## Run 1 — VoiceOver (macOS)
 
 Safari first. `Cmd+F5` = VoiceOver on/off. `VO` = `Ctrl+Option`. Move: `VO+Right/Left`. Activate: `VO+Space`. Rotor: `VO+U`.
 
-1. `VO+Right` from the top. Note legal label ("An offer from Elli AG") and **Imprint** link.
+1. `VO+Right` from the top. Note the legal label ("An offer from Elli AG") and **Imprint** link.
 2. Continue to `#tf-scroller`. Note whether group name is spoken and whether reader offers to enter.
-3. `Tab` through the whole page. Note name **and** role at each stop. There are **16**; write the sequence.
-4. At each **accordion** header: note name and **expanded / collapsed** state. `VO+Space`; note whether new state is announced without moving focus.
-5. At each **PDF Download** control: note full name **and role** (expect *"link"*, not *"button"*). Expected names: *"PDF Download — We Charge Basic"* through *"… Pro"*. **All four must differ.** Press `Enter`; confirm download starts.
-6. With focus inside a tile, press `ArrowRight`. Note: (a) carousel steps, (b) where focus lands, (c) what `#tf-live` says — expected *"We Charge Go, tariff 2 of 4"*. Walk to last tile, then `ArrowLeft` back.
+3. `Tab` through the whole page. **16 stops** — write name and role at each.
+4. At each **accordion** header: note name and **expanded / collapsed** state. `VO+Space`; note whether new state is announced without focus moving.
+5. At each **PDF Download** control: note full name **and role** (expect *"link"*). **All four names must differ.** Press `Enter`; confirm download starts.
+6. With focus inside a tile, `ArrowRight`. Note: (a) carousel steps, (b) where focus lands, (c) what `#tf-live` says. Walk to last tile; `ArrowLeft` back.
 7. **Count utterances per step.** One per change, not two.
 8. `Tab` to **Show next / previous tariff**. Confirm the arrow that becomes irrelevant **leaves the tab order entirely**.
-9. `VO+U` → **Form Controls** (full list), then rotor to **Headings**, then **Landmarks**.
-10. Browse a tile body `VO+Right`; note whether `<dl>` term/definition pairs read as a coherent sequence. Record the actual spoken words.
+9. `VO+U` → **Form Controls** (full list), then **Headings**, then **Landmarks**.
+10. Browse a tile body `VO+Right`; record whether `<dl>` term/definition pairs read coherently.
 
 ## Run 2 — WAVE 3.3.1.0
 
@@ -254,9 +254,7 @@ Safari first. `Cmd+F5` = VoiceOver on/off. `VO` = `Ctrl+Option`. Move: `VO+Right
 4. **Scan all of my page.** Expand all seven accordions. Scan again.
 5. Run **Interactive Elements** guided test — target size is covered here in current builds.
 
-> **Guided-test zeros are not passes.** An unrun test reports "Runs: 0, Total issues: 0", which rolls up as clean.
-
-> **What axe cannot tell you:** SC 2.5.3 (no `label-in-name` rule) and the SC 1.4.11 focus-ring decision. axe's `color-contrast` covers SC 1.4.3 text contrast only.
+> **Guided-test zeros are not passes** — an unrun test rolls up as clean. **axe cannot tell you:** SC 2.5.3 (no `label-in-name` rule), the SC 1.4.11 focus-ring decision, or 1.4.11 non-text contrast. `color-contrast` covers SC 1.4.3 text contrast only.
 
 ---
 
@@ -292,7 +290,7 @@ Tick only what you observed. **An untested box is not a pass.**
 - [ ] **Step 5** — Visible string spoken **verbatim and first**, tier appended after (**append, never splice**).
 - [ ] **Step 6–7** — `ArrowRight/Left` step carousel; focus lands on the same kind of control in the adjacent tile. `#tf-live` speaks **once** per step.
 - [ ] **Step 8** — At first tile `#tf-prev` unreachable by `Tab` and rotor; at last tile, likewise `#tf-next`.
-- [ ] **Step 9** — PDF CTAs appear under **Links** (not Form Controls). Links = 6; Form Controls = 7 accordion buttons + live arrow. Headings: `h1 x1, h2 x4, h3` per accordion count, no level skipped. `#tf-dots` must not appear anywhere.
+- [ ] **Step 9** — PDFs under **Links** (not Form Controls); Links = 6, Form Controls = 7 accordions + live arrow. Headings: `h1 x1, h2 x4, h3` per accordion count, no level skipped. `#tf-dots` must not appear.
 - [ ] **Step 10** — `<dl>` term/definition pairs read coherently. Record the actual sequence.
 
 ## Run 2 — WAVE
@@ -315,8 +313,8 @@ Tick only what you observed. **An untested box is not a pass.**
 - [ ] All three runs done: tool version, browser, OS, viewport, date, live or local.
 - [ ] Every failure triaged as **in scope** or **topbar**.
 - [ ] **VoiceOver recorded as deviation from NVDA 2026.1.1.55980**, not a substitute.
-- [ ] Linked PDFs recorded as **placeholders**; clause 10 and PAC apply when real documents replace them.
-- [ ] §10's *"except NVDA"* may drop only once all of the above holds. **"Fully compliant" remains unavailable** while the four documents are untagged.
+- [ ] Linked PDFs recorded as **placeholders**; clause 10 and PAC apply when real documents land.
+- [ ] **"Fully compliant" remains unavailable** while the four documents are untagged placeholders.
 
 ---
 
@@ -379,8 +377,8 @@ The six links: *Skip to main content*, *Imprint*, and *PDF Download — We Charg
 
 ### What this settles
 
-- **SC 2.5.3** — "PDF Download — We Charge Basic" spoken verbatim and first, tier appended: **append, never splice**. The `.sr-only` suffix does the job. SC 2.4.4 / 4.1.2 confirmed — four identical visible strings, four distinguishable controls.
-- **Accordion state** — `aria-expanded` reaches the reader: "…, **expanded**, button". "Ionity" headers ship collapsed and say *collapsed*.
+- **SC 2.5.3 / 2.4.4 / 4.1.2** — "PDF Download — We Charge Basic" spoken verbatim and first, tier appended (**append, never splice**). Four identical visible strings; four distinguishable controls in the Links rotor.
+- **Accordion state** — `aria-expanded` reaches the reader ("…, **expanded**, button"); "Ionity" headers ship closed and say *collapsed*.
 
 > **VoiceOver's own cursor, not the orange ring, appears in screenshots taken with VO running.** `VO+arrows` does not move DOM focus. The ring was confirmed at all 16 stops by driving real `Tab` keys — §2.
 
@@ -406,19 +404,16 @@ The six links: *Skip to main content*, *Imprint*, and *PDF Download — We Charg
 | 960 | Pro | "We Charge **Plus**, tariff 3 of 4" |
 | 390 | Go / Plus / Pro | correct — one tile fits, so leftmost *is* focused |
 
-At 1440, all four tiles fit and `scrollLeft` never moves, so no `scroll` event fires and `sync()`
-never ran — the first two presses announced **nothing at all**.
+At 1440 the first two presses announced **nothing at all** — all four tiles fit, `scrollLeft` never
+moves, `scroll` never fires, `sync()` never ran.
 
-**Why this was invisible to every automated pass.** The region was never empty, never unlabelled and
-never mis-wired; it faithfully announced a *real* tile index. Only a human moving focus and listening
-could notice it was the **wrong** one. Announcing a tariff you are not on is worse than silence.
+**Why this was invisible to every automated pass.** The region announced a *real* tile index; only a
+human moving focus and listening could notice it was the **wrong** one. Announcing a tariff you are
+not on is worse than silence.
 
-**Fix.** A single `announce(idx)` writer now owns the region; the index is **the tile focus is in**,
-falling back to leftmost visible when focus is outside the carousel. The arrow-key handler calls it
-directly. Verified at 1440 / 1280 / 960 / 390.
+**Fix.** `announce(idx)` now uses the **tile focus is in** (not `scrollLeft`); the arrow-key handler calls it directly. Verified at 1440 / 1280 / 960 / 390.
 
-**This is the single strongest argument in the pack for manual testing.** Introduced by the
-arrow-key feature, shipped past a clean 107-rule axe run, clean AX tree and 16 verified tab stops.
+**This is the single strongest argument in the pack for manual testing** — shipped past a clean 107-rule axe run, clean AX tree and 16 verified tab stops.
 
 ### The rate rows — reported as "not glued", and that is correct behaviour
 
@@ -435,12 +430,7 @@ DescriptionList
   term "Transaction fee"                             definition "-"
 ```
 
-Five term/definition pairs, correctly ordered and paired. **SC 1.3.1 and 1.3.2 pass.** The AC and
-DC blocks are separated only by visual spacing; the grouping lives in the reading order, so **the
-order is load-bearing**. **Only the Pro tile has rate rows** — one `<dl>`, 5 pairs; the other three
-tiles carry a description sentence.
-
-**NVDA remains untouched** — §9.4.
+Five term/definition pairs, correctly ordered and paired. **SC 1.3.1 and 1.3.2 pass.** The AC/DC grouping lives in the reading order only — no ARIA grouping on the rows — so **the order is load-bearing**. **Only the Pro tile has rate rows** (one `<dl>`, 5 pairs); the other three tiles carry a description sentence.
 
 ## 9.2 WAVE — ✅ complete (hosted + extension, both accordion states), 2026-08-24
 
@@ -450,7 +440,7 @@ tiles carry a description sentence.
 |---|---|---|---|---|---|
 | **0** | **0** | **4** | 29 | 16 | 26 |
 
-Verified against the current build: 4 tiles, 4 `a.tf-cta[download]`, 7 accordions, `announce(idx)` present. All four alerts are `link_pdf` — expected (§9.5).
+Build verified: 4 tiles, 4 `a.tf-cta[download]`, 7 accordions, `announce(idx)` present. All four alerts are `link_pdf` — expected (§9.5).
 
 ### Extension run — default state, 2026-08-24
 
@@ -464,7 +454,7 @@ Verified against the current build: 4 tiles, 4 `a.tf-cta[download]`, 7 accordion
 |---|---|---|---|---|---|
 | **0** | **0** | **4** | 29 | 16 | 26 |
 
-**Run 2 complete:** two engines, two invocation methods, two content states, same six numbers every time. axe agrees — only the `hidden-content` incomplete count moves (§2).
+**Run 2 complete:** two engines, two invocation methods, two content states, same six numbers every time.
 
 ## 9.3 axe DevTools — ◐ UI run done 2026-08-24 (Pro); 3 findings, all on the out-of-scope topbar
 
@@ -479,14 +469,12 @@ Settings: **WCAG 2.2 AA**, Best Practices ON, Experimental OFF.
 | **Total** | **3** — all Critical |
 | Ignored (excluded from total) | 0 |
 
-The open-source engine agrees with the CDP run. The 3 findings come from Pro's advanced set and a guided test — not in open-source axe-core.
+The open-source engine agrees with the CDP run. All 3 findings are from Pro's advanced set / a guided test — not in open-source axe-core — and all are against the **topbar (out of scope)**.
 
 | Rule | Count | Where |
 |---|---|---|
 | Informative images must have accessible names | 2 | topbar icons |
 | Function cannot be performed by keyboard alone | 1 | topbar |
-
-All three are against the **topbar (out of scope)**. Both judgements are correct about the markup; the topbar is not implemented at all.
 
 > ⚠️ **Still to capture: per-node selectors.** If any node resolves inside `#tf-main` this verdict changes.
 
@@ -500,7 +488,7 @@ All three are against the **topbar (out of scope)**. Both judgements are correct
 | Modal Dialog | 0 | 0 | **Not run.** Also **not applicable**: 0 `<dialog>`, 0 `role="dialog"`, 0 `aria-modal` |
 | Structure | 0 | 0 | **Not run — and it does apply.** 12 headings, `<ul>`, `<dl>`, banner and main |
 
-> Three tests show "Runs: 0, Total issues: 0"; the summary rolls them into "Guided Issues: 1" — two tests run, three never started. **Structure is neither run nor N/A.**
+> Three unrun tests show "Total issues: 0" and roll up as clean. **Structure is neither run nor N/A.**
 
 ### Structure guided test — run 2026-08-24
 
@@ -512,11 +500,11 @@ All three are against the **topbar (out of scope)**. Both judgements are correct
 ### Two deviations from the protocol, recorded
 
 1. **Engine version.** Extension shipped **axe-core 4.12.1**; CDP runs used **4.13.0**. Protocol names build **4.131.2** — a build number, not an engine version.
-2. **`focus-order-semantics` did not appear** despite Best Practices ON. The 4.13.0 CDP run flags it on `#tf-scroller`. Rule sets move between minor versions — documented disagreement, SC 2.1.1 wins.
+2. **`focus-order-semantics` absent** despite Best Practices ON — 4.13.0 CDP flags it on `#tf-scroller`. Rule sets move between minor versions; SC 2.1.1 wins.
 
 ## 9.4 NVDA — ◐ deviation recorded, still owed
 
-**NVDA 2026.1.1.55980** is named by the protocol and has not been run; it needs Windows. VoiceOver on Safari was run instead (§9.1) and is a **documented deviation, not a substitute** — a formal BITV / EN 301 549 audit naming NVDA will not accept VoiceOver evidence. That run was not ceremonial: it found the live-region defect that every automated instrument passed.
+**NVDA 2026.1.1.55980** is named by the protocol and has not been run. VoiceOver on Safari was run instead (§9.1) — **documented deviation, not a substitute**; a formal BITV / EN 301 549 audit will not accept VoiceOver evidence. That run was not ceremonial: it found the live-region defect every automated instrument passed.
 
 ## 9.5 The four linked PDFs — placeholders, deliberately not assessed
 
