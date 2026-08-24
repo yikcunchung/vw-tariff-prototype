@@ -7,8 +7,10 @@
 nothing is out of scope. **PDFs are now a linked surface, and that changes the scope.** Each tile's
 CTA is an `<a href="assets/*.pdf" download>`, so four PDFs are part of what this page offers. The
 *documents themselves* remain a separate conformance surface under **EN 301 549 clause 10**, checked
-with **PAC** — not by anything in this pack. ⚠️ **The four files are not in the repo yet**, so the
-links resolve to 404 and no PDF has been assessed. Neither this document nor `a11y-2` covers them.
+with **PAC** — not by anything in this pack. The four files now in `assets/` are **placeholders,
+there so the download can be demonstrated**; they are untagged and unassessed (`a11y-2` §9.5).
+Nothing in this table depends on them. When real tariff documents replace them, clause 10 and PAC
+apply to those.
 **Companion documents:** `a11y-2-automated-testing.md` (what the tools can and cannot prove) ·
 `a11y-3-implementation.md` (what to build).
 
@@ -113,7 +115,7 @@ criteria are not required and are not listed.
 | **2.4.1** | Bypass Blocks | A | Yes | ✅ Pass | `a.skip-link → #tf-main`; target exists, first tab stop. |
 | **2.4.2** | Page Titled | A | Yes | ✅ Pass | `<title>Volkswagen Charging Tariffs — We Charge</title>` — descriptive and unique. |
 | **2.4.3** | Focus Order | A | Yes | ✅ Pass | Focus order is `#tf-scroller` → each tile's 2–3 controls in visual order → prev/next. Verified at 1440 and 320×256 @ dsf 4; a `focusin` handler scrolls each focused control into view (`inVP=true` for all 16). |
-| **2.4.4** | Link Purpose (In Context) | A | Yes | ✅ Pass | Six links, six unique names. The four PDF CTAs are real `<a href download>`: the visible words say "PDF Download" so the **format is stated in the link text**, and the `.sr-only` tier suffix makes each destination unambiguous ("PDF Download — We Charge Pro"). With the 7 accordion buttons that is 11 tier-suffixed names and **0 duplicate role+name pairs** in the accessibility tree. **Not verified: that each `href` points at the right tariff's document** — the files do not exist yet, so the mapping is unaudited. |
+| **2.4.4** | Link Purpose (In Context) | A | Yes | ✅ Pass | Six links, six unique names. The four PDF CTAs are real `<a href download>`: the visible words say "PDF Download" so the **format is stated in the link text**, and the `.sr-only` tier suffix makes each destination unambiguous ("PDF Download — We Charge Pro"). With the 7 accordion buttons that is 11 tier-suffixed names and **0 duplicate role+name pairs** in the accessibility tree. **Not verified: that each `href` points at the right tariff's document** — the targets are placeholders, so there is nothing to check the mapping against yet. |
 | **2.4.5** | Multiple Ways | AA | No | ⚪ N/A | A standalone single page. SC 2.4.5 applies to a *set* of web pages; there is no set. |
 | **2.4.6** | Headings and Labels | AA | Yes | ✅ Pass | `h1 → h2 → h3`, no skipped levels, one `h1`. Every control name is descriptive and tier-qualified. |
 | **2.4.7** | Focus Visible | AA | Yes | ✅ Pass | **All 16 stops show the same ring** — `2px solid var(--focus-ring)` (`#c86c03`), `outline-offset: 0`, measured on every stop by driving real `Tab` keys. `.skip-link` and the Imprint link are included; they previously fell back to Chrome's `1px auto` UA ring. |

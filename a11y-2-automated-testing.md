@@ -45,7 +45,7 @@ The local `index.html` and the deployed build are **byte-identical**.
 | **Zoom 400% and 320 × 256 px** | ✅ **Done** | `320×256 @ deviceScaleFactor 4`. **dsf 1 is a small screen, not a zoomed one** |
 | **Operated via the keyboard** | ✅ **Done** | Driven with real `Input.dispatchKeyEvent` |
 | **NVDA 2026.1.1.55980** | ❌ **Not done** | The one real gap — §5 |
-| **PAC 26.1.0.0** | ❌ **Now required, not done** | PAC checks PDF/UA-1 (ISO 14289-1). **This app now links four PDFs** — `we_charge_free`, `we_charge_free_ionity_1`, `we_charge_free_ionity_2`, `we_charge_plus` — so clause 10 applies and PAC is no longer N/A. The files are not in the repo yet (`*.pdf` count: 0), so there is nothing to run it against; **the moment they land, each one needs a PAC pass** |
+| **PAC 26.1.0.0** | ⚪ **Not applicable — for now** | PAC checks PDF/UA-1 (ISO 14289-1). The four linked PDFs are **placeholders that exist to demonstrate the download** (§9.5), so there is nothing meaningful to validate. **This flips to required the moment real tariff documents replace them** — clause 10 applies to those, and the placeholders are untagged, so do not assume the real ones will be |
 
 ### NVDA vs VoiceOver — a deviation to record
 
@@ -257,9 +257,8 @@ Do Step 0, then — **writing down the spoken words after each action:**
 5. At each **PDF Download** control, note the full name **and the role**. These are `<a href download>`,
    so expect *"link"*, not *"button"*. Expected names: the visible words followed by the tier —
    *"PDF Download — We Charge Basic"* through *"… Pro"*. **All four must differ.** Press `Enter`
-   (not `Space` — links do not activate on `Space`) and note whether a download starts. ⚠️ **The four
-   target files are not in the repo yet, so expect a 404**; record that rather than reporting it as a
-   naming defect.
+   (not `Space` — links do not activate on `Space`) and confirm a download starts. The targets are
+   **placeholder PDFs** (§9.5) — check that the link resolves, and audit nothing inside the file.
 6. **The carousel announcement.** With focus inside a tile press `ArrowRight`. Note (a) whether the
    carousel steps, (b) where focus lands, (c) what `#tf-live` says — expected one utterance of the
    form *"We Charge Go, tariff 2 of 4"*. Walk to the last tile, then `ArrowLeft` back.
@@ -456,6 +455,19 @@ not the engine version.
 **NVDA 2026.1.1.55980** is named by the protocol and has not been run; it needs Windows. VoiceOver
 is planned instead and is a **documented deviation, not a substitute** — a formal BITV / EN 301 549
 audit naming NVDA will not accept VoiceOver evidence for that line item. §1 has the reasoning.
+
+## 9.5 The four linked PDFs — placeholders, deliberately not assessed
+
+The tile CTAs link four PDFs in `assets/`. **These are placeholders, present so the download button
+can be demonstrated end to end** — they are not the tariff documents this app would ship. They were
+read structurally (PDF 1.7, 2–3 pages each) and are **untagged, carry no `/Lang`, and all four share
+the title "Ladebedingungen"**. That is recorded for completeness, not raised as a defect: nothing is
+claimed about these files and no verdict in `a11y-1` depends on them.
+
+**What this means for a real build.** The moment genuine tariff documents replace them, they become a
+conformance surface under **EN 301 549 clause 10**, each needs a **PAC 26.1.0.0** pass, and tagging
+plus `/Lang` plus a document title that identifies the tariff stop being optional. Until then the
+only thing verified here is that **the link resolves and the download starts.**
 
 ---
 
