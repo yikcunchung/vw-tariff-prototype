@@ -5,15 +5,21 @@
 (`axe.version` read from the engine, not the bundle filename).
 **Deployed at:** https://yikcunchung.github.io/vw-tariff-prototype/
 **Companions:** `a11y-1-criteria.md` (every criterion) · `a11y-3-implementation.md` (what to build).
-**Manual testing:** the procedure is §6, the checklist §7, the results §9, the claim §10.
 
-The single most important sentence in this pack:
+**BLUF:** `#tf-main` is at **0 axe violations** across five viewports including literal 400% zoom,
+in **both accordion states**, with every default-disabled rule force-enabled. WAVE is clean on two
+engines, two invocation methods and both states. Nu is clean. The accessibility tree carries **0
+unnamed nodes and 0 duplicate role+name pairs**, and all **16 tab stops** were driven with real keys.
+**All three manual runs are done**, and the VoiceOver pass found a defect no tool reported — now
+fixed. **NVDA is the only instrument still owed.**
 
-> **A clean automated run is necessary and nowhere near sufficient.** This app scores 0 axe
-> violations, 0 WAVE errors and 0 HTML validity errors — and that result could not see the
-> unnamed-graphic defect that the accessibility tree found, cannot test SC 2.5.3, cannot judge
-> whether a name is *correct* rather than merely present, and cannot tell you what a screen reader
-> actually says.
+> **The one sentence that matters:** every automated instrument here scored this app clean **while it
+> was announcing the wrong tariff to a screen-reader user.** Tooling is necessary and nowhere near
+> sufficient — a live region can be present, correctly wired, and confidently naming the wrong thing.
+
+**How to read this:** §0–§5 explain what the tools can and cannot establish. §6–§7 are procedure —
+follow them. §8 re-runs the automated half. §9 is the evidence record. §10 is the claim the evidence
+supports.
 
 ---
 
@@ -51,7 +57,7 @@ The local `index.html` and the deployed build are **byte-identical**.
 | **WAVE Evaluation Tool 3.3.1.0** | ✅ **Done** | Real engine via `wave.webaim.org/report#/<url>` against the public URL |
 | **Zoom 400% and 320 × 256 px** | ✅ **Done** | `320×256 @ deviceScaleFactor 4`. **dsf 1 is a small screen, not a zoomed one** |
 | **Operated via the keyboard** | ✅ **Done** | Driven with real `Input.dispatchKeyEvent` |
-| **NVDA 2026.1.1.55980** | ❌ **Not done** | The one real gap — §5 |
+| **NVDA 2026.1.1.55980** | ◐ **Deviation** | VoiceOver run instead — §9.1. **The one instrument still owed** |
 | **PAC 26.1.0.0** | ⚪ **Not applicable — for now** | PAC checks PDF/UA-1 (ISO 14289-1). The four linked PDFs are **placeholders that exist to demonstrate the download** (§9.5), so there is nothing meaningful to validate. **This flips to required the moment real tariff documents replace them** — clause 10 applies to those, and the placeholders are untagged, so do not assume the real ones will be |
 
 ### NVDA vs VoiceOver — a deviation to record
@@ -512,7 +518,7 @@ Charge {Basic, Go, Plus, Pro}*.
 | `Space` on a PDF link | nothing happens | ✅ correct link semantics — `Space` is not a link activator |
 | `ArrowRight`, focus on an "Emission standard" accordion | focus moves to **the "Emission standard" accordion of the next tile** | ✅ the peer-matching is working as designed |
 | `VO+Space` on an "Ionity" header | says **collapsed**, and focus stays on the header | ✅ both states reach the reader; toggling does not move focus |
-| `ArrowRight` at 4-tiles-visible width | **nothing announced**, then the *wrong tariff* announced | ❌ **defect — found by this run, now fixed.** See below |
+| `ArrowRight` at 4-tiles-visible width | **nothing announced**, then the *wrong tariff* announced | ⚠️ **defect — found by this run, now fixed.** See below |
 
 **On that last row — this is the behaviour the handler was written for, not a coincidence.** Arrow keys
 step the carousel *and* carry focus to the **matching control in the adjacent tile**: same class, same
@@ -731,7 +737,7 @@ than clicked through:
 `color-contrast-enhanced` correctly **did not** appear: it is AAA, and the standard was set to 2.2 AA.
 That is the expectation in the previous revision of this section holding exactly.
 
-## 9.4 NVDA — ❌ not done
+## 9.4 NVDA — ◐ deviation recorded, still owed
 
 **NVDA 2026.1.1.55980** is named by the protocol and has not been run; it needs Windows. VoiceOver
 is planned instead and is a **documented deviation, not a substitute** — a formal BITV / EN 301 549

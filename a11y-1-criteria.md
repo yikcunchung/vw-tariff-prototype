@@ -1,22 +1,11 @@
 # A11y 1 of 3 — WCAG 2.2 criterion checklist
 
 **App:** VW Charging Tariffs — We Charge (`tariffs`) — a single-page simulator.
-**Audited:** 2026-08-24 against the current source.
+**Audited:** 2026-08-24 against the live deployment.
 **Deployed at:** https://yikcunchung.github.io/vw-tariff-prototype/
-**Scope:** `#tf-main` — the tariff section and everything in it. **The topbar is out of scope.** It is
-non-functional chrome reproducing the VW shell: its icons are inert `<div>`s with `alt=""` images, no
-click handler, no `tabindex`, no `role`, no `cursor: pointer`. Nothing in this table is claimed about
-them, and findings against them are recorded in `a11y-2` §9.3 rather than fixed here. **They are not
-"accessible" — they are not implemented**, which is a different statement, and a real build must make
-them real controls and expose them.
-
-**PDFs are a linked surface, and that changes the scope too.** Each tile's
-CTA is an `<a href="assets/*.pdf" download>`, so four PDFs are part of what this page offers. The
-*documents themselves* remain a separate conformance surface under **EN 301 549 clause 10**, checked
-with **PAC** — not by anything in this pack. The four files now in `assets/` are **placeholders,
-there so the download can be demonstrated**; they are untagged and unassessed (`a11y-2` §9.5).
-Nothing in this table depends on them. When real tariff documents replace them, clause 10 and PAC
-apply to those.
+**Scope:** `#tf-main` — the tariff section and everything in it. **Out of scope:** the topbar, and
+the four linked PDFs — PDFs are a separate conformance surface, EN 301 549 clause 10, checked with
+PAC rather than anything in this pack.
 **Companion documents:** `a11y-2-automated-testing.md` (what the tools can and cannot prove) ·
 `a11y-3-implementation.md` (what to build).
 
@@ -34,9 +23,20 @@ criteria are not required and are not listed.
 | ✅ Pass | Verified by driving the app — real pointer and key events, or measured pixels |
 | ✅ Pass\* | Verified by code and accessibility-tree inspection, **not** driven |
 | ⚪ N/A | The app has no such content |
-| ⚖️ Decide | Passes, but on an arguable reading — record the decision |
 
-**56 criteria assessed. 0 failures and 0 open items.** 23 verified · 8 inspected · 24 not applicable · 1 decision to record.
+**All 56 A/AA criteria are in scope for `#tf-main`, and all 56 are closed — 0 failures, 0 open
+items.** 23 verified · 9 inspected · 24 not applicable. One discretionary decision is recorded at the
+end of this document.
+
+> **Scope rule:** only `#tf-main` counts. The topbar is non-functional chrome reproducing the VW
+> shell — inert `<div>`s wrapping `alt=""` images, with no handler, `tabindex`, `role` or
+> `cursor: pointer`. Failures against it are **not findings here**; they are recorded in `a11y-2`
+> §9.3. They are not "accessible", they are **not implemented** — a different statement, and a real
+> build must make them real controls and expose them.
+
+> **The four linked PDFs are placeholders**, present so the download can be demonstrated. They are
+> untagged and unassessed (`a11y-2` §9.5). Nothing in this table depends on them. When real tariff
+> documents replace them, clause 10 and a PAC pass apply to those.
 
 ---
 
@@ -82,7 +82,7 @@ criteria are not required and are not listed.
 | **1.4.4** | Resize Text | AA | Yes | ✅ Pass | 400% zoom (320×256 @ dsf 4): no page-level horizontal scroll, all 16 stops reachable, nothing clipped. |
 | **1.4.5** | Images of Text | AA | Yes | ✅ Pass* | No images of text. |
 | **1.4.10** | Reflow | AA | Yes | ✅ Pass | Page `scrollWidth 320 == clientWidth 320` at 320×256 @ dsf 4 — **no page-level horizontal scroll**. The tiles extend beyond the viewport but entirely inside `#tf-scroller`, a deliberate keyboard-operable horizontal carousel, which is the permitted two-dimensional-content exception. All 20 controls reachable and scrolled into view. |
-| **1.4.11** | Non-text Contrast | AA | Yes | ⚖️ Decide | Tile borders are navy on light, far above 3:1. The focus ring is `#c86c03` (the value the visualizer FA ships): **3.75:1** on the tile white, **3.44:1** on the page cream. On a CTA that is *hovered and focused at once* the ring's inner neighbour becomes the `#ccbdab` hover fill at **2.04:1** — its outer edge still reads 3.75:1 against the footer white, so the indicator stays discernible. Passes on that reading; record the decision. |
+| **1.4.11** | Non-text Contrast | AA | Yes | ✅ Pass\* | Tile borders are navy on light, far above 3:1. The focus ring is `#c86c03` — **3.75:1** on the tile white, **3.44:1** on the page cream. On a CTA that is hovered *and* focused at once its inner neighbour becomes the `#ccbdab` hover fill at **2.04:1**, while its outer edge still reads 3.75:1 against the footer. Passes on that reading; the decision is recorded at the end of this document. |
 | **1.4.12** | Text Spacing | AA | Yes | ✅ Pass | All four overrides applied (line-height 1.5, letter-spacing .12em, word-spacing .16em, paragraph 2em) at 1440 / 390 / 320: **no newly clipped element, no control lost, no horizontal scroll.** Detector validated against a canary that fits at the default line-height and overflows at 1.5. |
 | **1.4.13** | Content on Hover or Focus | AA | No | ⚪ N/A | No hover- or focus-triggered content. The accordions are click-toggled. |
 
@@ -189,22 +189,24 @@ criteria are not required and are not listed.
 
 # What is actually left to do
 
-**No open criteria and no known failures.** Every Level A/AA criterion is verified, inspected, or
-not applicable.
+**No open criteria and no known failures.** Every Level A/AA criterion in `#tf-main` is verified,
+inspected, or not applicable.
 
-**No decisions outstanding.** Every criterion resolves without a judgement call.
+**One instrument still owed: NVDA 2026.1.1.55980.** It needs Windows. VoiceOver on Safari has been
+run in full and is recorded in `a11y-2` §9.1 — but that is a **deviation, not a substitute**: a
+formal BITV / EN 301 549 audit naming NVDA will not accept VoiceOver evidence for that line item.
+
+**Everything else the protocol names is done.** WAVE 3.3.1.0 hosted *and* by extension, in both
+accordion states; the axe DevTools UI at WCAG 2.2 AA; axe-core over CDP with every rule force-enabled
+across five viewports and both states; Nu; literal 400% zoom. `a11y-2` §9 is the evidence record.
 
 One disclosure that is **not** a defect: with axe's experimental rules enabled, `focus-order-semantics`
 reports `#tf-scroller` (impact *minor*) because it carries `tabindex="0"` with `role="group"` rather
 than a widget role. That tabindex is **required** by the scrollable-region-focusable rule (ACT
 `0ssw9k`) to satisfy SC 2.1.1, so the two rules disagree by construction. The rule is tagged
 `best-practice` + `experimental` and carries **no `wcag2*` tag**, so it maps to no WCAG 2.2
-criterion. Keep the tabindex.
-
-**One thing no automated pass can close:** a screen-reader run. VoiceOver is planned; the protocol
-names NVDA 2026.1.1.55980, so record that as a deviation. Two tool runs also remain — one pass
-through the axe DevTools 4.131.2 UI, and a WAVE run from the browser extension. See
-`a11y-2-automated-testing.md`.
+criterion. Keep the tabindex. The axe DevTools UI did not report it at all — a version difference
+between 4.12.1 and 4.13.0, not a contradiction.
 
 # Decisions an auditor could challenge
 
@@ -212,10 +214,34 @@ through the axe DevTools 4.131.2 UI, and a WAVE run from the browser extension. 
 (1.4.11, 1.4.13, 2.5.1, 2.5.2, 2.5.8, 2.4.11). For those, "passes" reflects a **judgement**, not a
 test result.
 
+**One decision is recorded rather than resolved.** SC 1.4.11, the focus ring on a control that is
+hovered and focused at once: `#c86c03` reads **2.04:1** against the `#ccbdab` hover fill on its inner
+edge, while its outer edge reads **3.75:1** against the footer white. The indicator stays discernible
+against at least one adjacent colour, which is the reading relied on. An auditor may take the
+stricter view. A darker hover fill would remove the argument entirely.
+
+**Two judgements settled by listening, not by tooling** — both in `a11y-2` §9.1. SC 2.5.3, where the
+four PDF links share the visible words "PDF Download" and are told apart by a hidden tier suffix:
+VoiceOver speaks the visible string **verbatim and first**, so the rule *append, never splice* holds.
+And SC 1.3.1 on the rate rows, reported as "not glued" and correctly so — a reader speaks term and
+definition separately; the **relationship** is what the criterion requires, and the tree carries it.
+
 **The strongest claim this evidence supports:**
 
-> *"This app meets WCAG 2.2 A/AA on every automated and runtime check available, pending
-> screen-reader verification."*
+> *"This app meets WCAG 2.2 A/AA on every check the protocol names except NVDA — axe-core over CDP
+> with every rule force-enabled across five viewports and both accordion states, the axe DevTools UI
+> at WCAG 2.2 AA, WAVE hosted and by extension in both states, the accessibility tree, real key and
+> pointer events, Nu, literal 400% zoom, and a VoiceOver pass on Safari — with one discretionary
+> decision recorded, one defect found by the VoiceOver pass and fixed, and NVDA still outstanding."*
 
-That is stronger than a tool-clean claim, and unlike a tool-clean claim it is true — the one real
-defect found here (unnamed graphics, SC 1.1.1) was invisible to axe, WAVE and Nu alike.
+That is stronger than a tool-clean claim, and unlike a tool-clean claim it is true. **The proof is
+the defect the VoiceOver pass found**: the live region announced the leftmost visible tile rather
+than the focused one, so it named a tariff the user was not on. It shipped past axe at 107 rules, a
+clean accessibility tree, 16 verified tab stops, WAVE and Nu. Only a person pressing an arrow key and
+listening caught it.
+
+# Source of truth
+
+`index.html` at the commit these figures were measured from, deployed at the URL above and
+byte-identical to it. Every number in this document was read from the live build, not from the
+source and not from a previous run.

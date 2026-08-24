@@ -5,6 +5,15 @@ styled-components.
 **Companions:** `a11y-1-criteria.md` (every criterion, pass/fail) ·
 `a11y-2-automated-testing.md` (what the tools can and cannot prove).
 
+**How to read this:** sections 1–6 are **prescriptive** — they are the contract the port must meet,
+not a description of the current build. Section 7 is **descriptive**: what the reference measurably
+does today, for diffing against.
+
+**BLUF:** Build the tariff carousel so keyboard, screen-reader and pointer users can operate it
+safely. Treat the vanilla reference as a behavioural spec, **not** as DOM to copy — a meaningful
+share of the required behaviour lives in JavaScript, and the one defect that shipped here lived
+entirely in it.
+
 **Scope:** `#tf-main` — the tariff section. The topbar is out of scope: non-functional chrome whose
 icons are inert placeholders. **When it is built for real, those icons become real controls and every
 invariant here applies to them** — an icon-only button needs a name (A2), a target needs 24×24 (C1),
@@ -18,13 +27,32 @@ and everything the mouse can do the keyboard must do (B1).
 
 ## Start here — the defect that shipped, and that no tool caught
 
-This app shipped with **0 unnamed graphics** and **no target under 24px** — it is the cleanest in
-the suite. The other three simulators were not: range-simulator exposed **16** unnamed graphics,
-cost-simulator 9, charging-time 7, and **axe, WAVE and Nu all reported clean** on every one.
+**The live region announced a tariff the user was not on.** `#tf-live` derived its index from
+`scrollLeft` — the **leftmost visible** tile — which is only the focused tile when a single tile
+fits. Once arrow keys could move focus between tiles, the two came apart: at 1440 focus sat on Pro
+while the region said *"We Charge Go, tariff 2 of 4"*, and at the widths where nothing scrolled it
+said nothing at all.
 
-Treat that as the lesson rather than a clean bill. The pattern is one attribute, easy to miss on a
-new icon, and no scanner in the required toolchain will tell you. **A1 is the rule that keeps it
-fixed; the accessibility-tree assertion in the Definition of Done is the check that proves it.**
+**Every instrument scored it clean.** axe at 107 rules, a clean accessibility tree, 16 verified tab
+stops, WAVE on two engines, Nu. The region was never empty, never unlabelled, never mis-wired — it
+faithfully announced a *real* tile index. Nothing static can tell you it is the **wrong** one. One
+person pressed an arrow key, listened, and heard it.
+
+Three rules exist because of it:
+
+- **A6** — one writer owns the live region, so two callers cannot contradict each other; and it
+  announces the element **focus** is on, not the one scroll position implies. Those two coincide only
+  when a single item is visible, which is exactly the width you test first.
+- **The Definition of Done requires a screen-reader pass** — not because the tree might be wrong, but
+  because the tree can be entirely right and still describe the wrong thing.
+
+> **Announcing the wrong thing is worse than announcing nothing.** Silence leaves a user to look;
+> a confident wrong answer does not.
+
+This app also shipped with **0 unnamed graphics** and **no target under 24px**, where its three
+siblings did not — range-simulator exposed **16** unnamed graphics, cost-simulator 9, charging-time
+7, and axe, WAVE and Nu all reported clean on every one. **A1** keeps that fixed. Neither lesson is
+a clean bill: both are cases where the required toolchain agreed, and was not enough.
 
 ---
 # 1. Semantics and naming
@@ -121,6 +149,33 @@ skip link as the **first** tab stop, pointing at an id that exists.
 
 The region must already be in the DOM at load — injecting it and writing to it in the same tick is
 not announced. Write to it from **every** path that changes the result, not just the common one.
+
+**One writer owns it.** Every caller goes through a single `announce(index)` function that also holds
+the last-announced value. Two callers writing directly — a scroll handler and a keyboard handler, say
+— will eventually disagree, and the user hears both.
+
+**Announce what focus is on, not what scroll position implies.** This is the rule the shipped defect
+broke. Deriving the index from `scrollLeft` gives the **leftmost visible** item, which equals the
+focused item **only when one item is visible at a time** — so it is correct at the narrow width you
+test first and wrong at every width above it.
+
+```js
+// Bad: leftmost visible item. Correct only when one item fits.
+var i = Math.round(sc.scrollLeft / step());
+
+// Good: the item focus is actually in, falling back to scroll position
+// when focus is outside the carousel — which is right for the arrow buttons.
+var tile = document.activeElement.closest('.tf-tile');
+announce(tile ? tiles.indexOf(tile) : i);
+```
+
+**Announce even when nothing scrolled.** If a keyboard action moves focus without moving the
+scroller, no `scroll` event fires — so a handler that only listens for scroll says nothing at all.
+Call `announce()` from the key handler too.
+
+> **Announcing the wrong thing is worse than announcing nothing.** Silence leaves a user to look; a
+> confident wrong answer does not. No scanner can tell the two apart: the region is present, wired
+> and non-empty in both cases.
 
 > **Keep the `.sr-only` clip.** `position:absolute; width:1px; height:1px; clip:rect(0,0,0,0);
 > clip-path:inset(50%); white-space:nowrap`. Set an explicit `color` on it — a clipped region that
