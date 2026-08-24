@@ -181,16 +181,24 @@ with CSS `order`.
 
 `SC 2.4.7` · **Level AA**
 
-`outline: 2px solid var(--navy-dark); outline-offset: 3px`. Apply it to **every** focusable thing
-including skip links and inline links — a control that falls back to the browser's default ring
-still passes, but it is a visible inconsistency and the first thing an auditor notices.
+`:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 0; }` where `--focus-ring`
+is `#c86c03` — the same indicator the visualizer FA ships, so the two read as one product. One
+base rule covers **every** focusable thing including skip links and inline links; a control that
+falls back to the browser's default ring still passes, but it is a visible inconsistency and the
+first thing an auditor notices. Pin `outline-offset: 0` explicitly: Chrome's UA sheet puts `1px`
+on links, so omitting it leaves the links half a pixel out of step with the buttons.
 
 **Never remove an outline without replacing it.** If the real control is a visually hidden
 `<input>` behind a styled surrogate, style the ring on the surrogate:
 
 ```css
-.vw-switch input:focus-visible ~ .vw-switch-track { outline: 2px solid #293043; outline-offset: 3px; }
+.vw-switch input:focus-visible ~ .vw-switch-track { outline: 2px solid #c86c03; outline-offset: 0; }
 ```
+
+**Check the ring against the *hover* fill, not just the resting one.** `#c86c03` is 3.75:1 on the
+tile white and 3.44:1 on the page cream, but only 2.04:1 against the CTA's `#ccbdab` hover fill —
+which is what sits inside the ring when a control is hovered and focused at once. It still passes
+on the outer edge; a darker hover fill would not.
 
 ---
 
@@ -406,16 +414,24 @@ viewport, but entirely inside `#tf-scroller`. That is the permitted two-dimensio
 **If the carousel is ever replaced with a plain overflowing row, this becomes a failure.**
 
 **The `focusin` handler is what satisfies 2.4.11.** Every focused control is scrolled clear of the
-sticky chrome; all 20 measured inside the viewport at 320×256. Keep it when porting — a CSS-only
+sticky chrome; all 16 measured inside the viewport at 320×256. Keep it when porting — a CSS-only
 port with `scroll-padding` must be re-verified, because the carousel scrolls on both axes.
 
-**Duplicate visible strings, unique names — this is the pattern to copy.** Four tiles each show
-"More information", "PDF Download" and "Emission standard". Twelve controls, twelve *unique*
-accessible names, each suffixed with its tier ("More information about We Charge Pro"). The visible
-text is contained verbatim and at the start, so 2.5.3 holds and a screen-reader control list is
-still navigable. **Suffix for uniqueness; never replace the visible text.**
+**Arrow keys inside a tile step the carousel, and focus must follow.** `ArrowLeft`/`ArrowRight` on a
+control inside a tile call the same step the arrow buttons do. Stepping *alone* would strand focus
+on a control that has just scrolled out of the porthole, so focus moves to the matching control in
+the adjacent tile — same class, index clamped, because tile 1 has one accordion and the others have
+two. The handler returns before `preventDefault` at the first and last tile, so the arrows fall
+through to native scrolling rather than dead-ending. `#tf-scroller` itself is deliberately left
+alone: its native arrow scrolling is what earns it its SC 2.1.1 tab stop.
 
-**One inconsistency worth closing (not a failure):** `.skip-link` and the Imprint link fall back to
-Chrome's `1px auto` UA focus ring, while every other control uses `2px solid var(--navy-dark)`.
-Visible, so 2.4.7 passes — but it is inconsistent with the rest of this app and with nala, which
-does style its skip link. See B4.
+**Duplicate visible strings, unique names — this is the pattern to copy.** Four tiles each show
+"PDF Download" and "Emission standard". Eleven controls, eleven *unique* accessible names, each
+suffixed with its tier ("PDF Download — We Charge Pro"). The visible text is contained verbatim and
+at the start, so 2.5.3 holds and a screen-reader control list is still navigable. **Suffix for
+uniqueness; never replace the visible text.**
+
+**That inconsistency is closed.** `.skip-link` and the Imprint link used to fall back to Chrome's
+`1px auto` UA focus ring while every other control carried the app's own. A single base
+`:focus-visible` rule now covers all 16 stops, verified by driving real `Tab` keys and reading
+`outlineColor`/`outlineWidth`/`outlineOffset` at each one. See B4.

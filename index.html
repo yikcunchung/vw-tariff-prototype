@@ -45,7 +45,11 @@
   --divider-alt: #dfe4e8;
   --btn-primary: #293043;          /* button/primary/default   */
   --btn-secondary: #001e50;        /* button/secondary/default */
+  --button-secondary-hover: #ccbdab; /* button/secondary/hover — same value the
+                                       range-simulator CTA renders via its fallback */
   --legalframe: #f08203;           /* border/legalframe */
+  --focus-ring: #c86c03;           /* focus indicator — the value the visualizer FA
+                                      ships (:focus-visible 2px solid #C86C03) */
   --radius-card: 12px;             /* borderRadius/cardS */
   --shadow-small: rgba(49,25,2,0.06); /* shadow/small #3119020f */
   --s0100: 4px; --s0150: 8px;  --s0200: 12px; --s0250: 16px;
@@ -168,9 +172,16 @@ html { scroll-padding-top: 72px; }
 }
 
 /* Legal-frame label straddling the top border.
-   Figma: x = 1 col, y = -12 from the border box  ->  left:0, top:-14 from the padding box */
+   Figma: x = 1 col, y = -12 from the border box  ->  top:-14 from the padding box.
+
+   An absolutely-positioned child resolves against .tf-section's PADDING box, and
+   the section's 1-col gutter lives inside that box — so left:0 pinned the label to
+   the viewport edge, one whole column left of the first tile. Offsetting by the
+   gutter, minus the label's own 8px inline padding, puts the TEXT on the tile's
+   left edge; the 8px chip overhang stays in the margin and keeps masking the
+   orange border it straddles. */
 .tf-legal {
-  position: absolute; left: 0; top: -14px;
+  position: absolute; left: calc(var(--pagepad) - var(--s0150)); top: -14px;
   height: 24px; display: flex; align-items: center;
   background: var(--bg); padding: 0 var(--s0150);
   font-family: var(--font-text); font-size: 14px; font-weight: 400;
@@ -226,7 +237,11 @@ html { scroll-padding-top: 72px; }
   -ms-overflow-style: none;         /* tabindex=0 below is MANDATORY    */
 }
 .tf-scroller::-webkit-scrollbar { display: none; }
-.tf-scroller:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: -2px; }
+/* The one focus ring, same declaration the visualizer FA uses, drawn tight against the
+   control. Covers .skip-link and the Imprint link too, which used to fall back to
+   Chrome's 1px auto UA ring (the inconsistency a11y-3 records as B4). The per-component
+   rules were identical once the offsets came off, so they are gone. */
+:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 0; }
 @media (min-width: 1600px) {
   /* All four tiles fit: no carousel, no bleed, nothing to scroll. */
   .tf-scroller { margin-inline: 0; padding-inline: 0; }
@@ -314,7 +329,6 @@ html { scroll-padding-top: 72px; }
   font-family: var(--font-head); font-size: 18px; font-weight: 700;
   line-height: 1.2; color: var(--content-primary);
 }
-.tf-acc-btn:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
 .tf-acc-label { flex: 1 0 0; min-width: 1px; word-break: break-word; }
 /* 24px icon box; inner shape 21.95 x 11.427 at the exact Figma offsets */
 .tf-chev { position: relative; display: block; width: 24px; height: 24px; flex-shrink: 0; }
@@ -362,26 +376,25 @@ html { scroll-padding-top: 72px; }
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: var(--s0300);
 }
+/* Secondary CTA — same style and hover as range-simulator .cta-button, but the
+   icon sits on the LEFT of the label. min-height (not height) so the label may
+   wrap at 320px under the SC 1.4.12 text-spacing overrides without spilling. */
 .tf-cta {
   width: 100%; min-height: 44px;
-  display: flex; align-items: center; justify-content: center;
-  padding: var(--s0200) var(--s0400);
-  border: 1px solid var(--btn-primary); border-radius: 100px;
-  background: transparent; cursor: pointer;
+  border: 1px solid var(--navy-dark); border-radius: 100px;
+  background: transparent; color: var(--navy-dark);
   font-family: var(--font-text); font-size: 16px; font-weight: 400;
-  line-height: 1.2; color: var(--btn-secondary); text-align: center;
+  line-height: 1.2; padding: 8px 32px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  transition: background 0.15s, color 0.15s;
 }
-.tf-cta:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
-.tf-pdf {
-  display: flex; align-items: center; gap: var(--s0100);
-  background: none; border: 0; padding: 0; cursor: pointer;
-  font-family: var(--font-text); font-size: 16px; font-weight: 400;
-  line-height: 1.2; color: var(--btn-primary);
+.tf-cta:hover {
+  background: var(--button-secondary-hover, #CCBDAB);
+  border-color: transparent;
+  color: var(--navy);
 }
-.tf-pdf:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
-.tf-pdf-ico { position: relative; display: block; width: 24px; height: 24px; flex-shrink: 0; }
-.tf-pdf-ico img { position: absolute; left: 3px; top: 2px; width: 18px; height: 20px; display: block; }
-.tf-pdf-label { border-bottom: 1px solid var(--btn-primary); }
+.tf-cta-ico { position: relative; display: block; width: 24px; height: 24px; flex-shrink: 0; }
+.tf-cta-ico img { position: absolute; left: 3px; top: 2px; width: 18px; height: 20px; display: block; }
 
 /* ── Fade (frame " Fade") — gradient over each page gutter ── */
 .tf-fade, .tf-fade-left {
@@ -416,7 +429,6 @@ html { scroll-padding-top: 72px; }
 }
 .tf-next { right: calc(16px - var(--pagepad)); }
 .tf-prev { left:  calc(16px - var(--pagepad)); }
-.tf-next:focus-visible, .tf-prev:focus-visible { outline: 2px solid var(--navy-dark); outline-offset: 2px; }
 .tf-next-ico { position: relative; display: block; width: 24px; height: 24px; }
 .tf-next-ico img {
   position: absolute; left: 8.5px; top: 50%; transform: translateY(-50%);
@@ -571,10 +583,9 @@ html { scroll-padding-top: 72px; }
                   </div>
                 </div>
                 <div class="tf-tile-foot">
-                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Basic</span></button>
-                  <button type="button" class="tf-pdf">
-                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
-                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Basic</span></span>
+                  <button type="button" class="tf-cta">
+                    <span class="tf-cta-ico"><img src="assets/download.svg" alt=""></span>
+                    <span>PDF Download<span class="sr-only"> — We Charge Basic</span></span>
                   </button>
                 </div>
               </li>
@@ -614,10 +625,9 @@ html { scroll-padding-top: 72px; }
                   </div>
                 </div>
                 <div class="tf-tile-foot">
-                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Go</span></button>
-                  <button type="button" class="tf-pdf">
-                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
-                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Go</span></span>
+                  <button type="button" class="tf-cta">
+                    <span class="tf-cta-ico"><img src="assets/download.svg" alt=""></span>
+                    <span>PDF Download<span class="sr-only"> — We Charge Go</span></span>
                   </button>
                 </div>
               </li>
@@ -657,10 +667,9 @@ html { scroll-padding-top: 72px; }
                   </div>
                 </div>
                 <div class="tf-tile-foot">
-                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Plus</span></button>
-                  <button type="button" class="tf-pdf">
-                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
-                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Plus</span></span>
+                  <button type="button" class="tf-cta">
+                    <span class="tf-cta-ico"><img src="assets/download.svg" alt=""></span>
+                    <span>PDF Download<span class="sr-only"> — We Charge Plus</span></span>
                   </button>
                 </div>
               </li>
@@ -721,10 +730,9 @@ html { scroll-padding-top: 72px; }
                   </div>
                 </div>
                 <div class="tf-tile-foot">
-                  <button type="button" class="tf-cta">More information<span class="sr-only"> about We Charge Pro</span></button>
-                  <button type="button" class="tf-pdf">
-                    <span class="tf-pdf-ico"><img src="assets/download.svg" alt=""></span>
-                    <span class="tf-pdf-label">PDF Download<span class="sr-only"> — We Charge Pro</span></span>
+                  <button type="button" class="tf-cta">
+                    <span class="tf-cta-ico"><img src="assets/download.svg" alt=""></span>
+                    <span>PDF Download<span class="sr-only"> — We Charge Pro</span></span>
                   </button>
                 </div>
               </li>
@@ -856,12 +864,50 @@ html { scroll-padding-top: 72px; }
   window.addEventListener('resize', schedule);
   if (window.ResizeObserver) { new ResizeObserver(schedule).observe(sc); }
 
-  next.addEventListener('click', function () {
+  function goNext() {
     sc.scrollLeft = Math.min(sc.scrollLeft + step(), sc.scrollWidth - sc.clientWidth);
-  });
-
-  prev.addEventListener('click', function () {
+  }
+  function goPrev() {
     sc.scrollLeft = Math.max(sc.scrollLeft - step(), 0);
+  }
+
+  next.addEventListener('click', goNext);
+  prev.addEventListener('click', goPrev);
+
+  /* ── Left/Right inside a tile step the carousel, exactly like the arrow buttons ──
+     Only for a control INSIDE a tile. The scroller itself keeps the browser's native
+     arrow scrolling, which is what earns it its SC 2.1.1 tab stop -- overriding that
+     would trade a documented behaviour for nothing.
+
+     Stepping on its own would strand focus on a control that just scrolled out of the
+     porthole (SC 2.4.11), so focus follows to the matching control in the adjacent
+     tile: same class, same index within that class. Tile 1 has one accordion and the
+     others have two, so the index is clamped rather than assumed to exist.
+
+     At the first/last tile the handler returns before preventDefault, so the arrows
+     fall through to native scrolling -- the same dead end the hidden arrow button is. */
+  sc.addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') { return; }
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) { return; }
+
+    var el = e.target;
+    if (!el || el === sc || typeof el.closest !== 'function') { return; }
+    var tile = el.closest('.tf-tile');
+    if (!tile) { return; }
+
+    var from = tiles.indexOf(tile);
+    var to   = from + (e.key === 'ArrowRight' ? 1 : -1);
+    if (from < 0 || to < 0 || to > tiles.length - 1) { return; }
+
+    e.preventDefault();
+    if (e.key === 'ArrowRight') { goNext(); } else { goPrev(); }
+
+    var cls   = el.classList.contains('tf-cta') ? '.tf-cta' : '.tf-acc-btn';
+    var here  = Array.prototype.slice.call(tile.querySelectorAll(cls));
+    var there = Array.prototype.slice.call(tiles[to].querySelectorAll(cls));
+    var peer  = there[Math.min(here.indexOf(el), there.length - 1)] ||
+                tiles[to].querySelector('.tf-acc-btn, .tf-cta');
+    if (peer) { peer.focus(); }
   });
 
   sync();
