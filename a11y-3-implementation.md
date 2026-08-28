@@ -97,10 +97,9 @@ Use `aria-labelledby` pointing at the visible label, not a retyped `aria-label` 
 The accessible name must **contain the visible text, contiguously**. No tool checks this; verify by hand.
 
 ```jsx
-// ✗ visible "Motor / Battery Capacity", name "Motor and battery capacity"
-//   one character — "/" written as the word "and" — is a Level A failure
-// ✗ visible "in … weather", name "in which weather"  (a word spliced between)
-// ✓ append, never splice:  visible "of my ID.7", name "of my ID.7 variant"
+// ✗ visible "PDF Download", name "Download the PDF"                — reworded, not appended
+// ✗ visible "PDF Download", name "PDF Download We Charge Pro tier" — a word spliced inside, not after
+// ✓ append, never splice:  visible "PDF Download", name "PDF Download — We Charge Pro"
 ```
 
 ---

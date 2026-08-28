@@ -63,7 +63,7 @@ Level A failure, and the screen-reader run is what finds it — not axe.
 ### 4. The scroller needs `tabindex="0"` — the scrollbar is suppressed
 
 ```html
-<div id="tf-scroller" role="group" aria-label="Tariff tiles" tabindex="0">
+<div id="tf-scroller" role="group" aria-label="Charging tariffs, scrollable list of 4" tabindex="0">
 ```
 
 Without `tabindex="0"` a keyboard user cannot scroll the tile row, because the native scrollbar is
@@ -82,16 +82,20 @@ function syncArrows() {
 A hidden control must leave the tab order. `hidden` attribute (not a CSS class) removes it from
 the accessibility tree and focus order simultaneously. Using a class alone is a SC 1.3.1 failure.
 
-### 6. Every inline `<svg>` is named or `aria-hidden="true"`
+### 6. Every icon is named or empty-alt'd — nothing ships as an unnamed graphic
 
 ```html
-<svg aria-hidden="true" focusable="false">…</svg>   <!-- decorative -->
-<svg role="img" aria-label="We Charge logo">…</svg>  <!-- meaningful -->
+<img src="assets/chevron-down.svg" alt="">                             <!-- decorative -->
+<img src="assets/logo-vw.svg" alt="Volkswagen" width="32" height="32">  <!-- meaningful -->
 ```
 
-The three sibling simulators shipped 16, 9 and 7 unnamed graphics — axe, WAVE and Nu reported
-clean on every one. A1 in `a11y-3-implementation.md` is the rule; the accessibility-tree assertion
-in the Definition of Done is what proves it.
+This app uses `<img>` for every icon, not inline `<svg>` — so `alt=""` is this app's version of
+`aria-hidden`. If your stack renders icons as inline SVG instead (React commonly does), the same
+rule applies as `aria-hidden="true"` / `role="img" aria-label="…"`. The three sibling simulators
+shipped this exact defect as 16, 9 and 7 unnamed graphics — axe, WAVE and Nu all reported clean on
+every one, because a bare `<svg>` maps to `role=image` with an empty name and none of those tools
+flag an empty name as an error. A1 in `a11y-3-implementation.md` is the rule; the accessibility-tree
+assertion in the Definition of Done is what proves it.
 
 ---
 
@@ -123,7 +127,7 @@ You do not need these to build. They exist so an auditor can verify the claim.
 | [`a11y-3-implementation.md`](a11y-3-implementation.md) | The full version of the six rules, plus 17 more that are standard for any VW app. Read it if you want the reasoning. |
 | [`a11y-2-automated-testing.md`](a11y-2-automated-testing.md) | What the tools prove and what they cannot, the manual test procedure, and the recorded results. |
 | [`a11y-1-criteria.md`](a11y-1-criteria.md) | All 56 WCAG A/AA criteria, one row each, pass/fail. For the auditor. Look up a criterion; do not read it through. |
-| [`a11y-voiceover-run1-worksheet.md`](a11y-voiceover-run1-worksheet.md) | The VoiceOver session where the live-region defect was found. |
+| [`a11y-voiceover-run1-worksheet.md`](a11y-voiceover-run1-worksheet.md) | The reusable worksheet for a VoiceOver pass — this copy is blank; the completed transcript from the run that found the live-region defect is in `a11y-2` §9.1. |
 
 ## Two things that are out of scope — do not fix them here
 

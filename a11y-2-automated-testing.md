@@ -350,9 +350,8 @@ chrome --headless=new --remote-debugging-port=9345 --disable-gpu
 ## 9.1 Screen reader — ✅ VoiceOver / Safari, complete (2026-08-24)
 
 **VoiceOver on Safari, against the live deployment**, freshness-checked before the run
-(`grep -c 'tf-cta-ico'` → 6). Captured from the VoiceOver caption panel. **Partial: the naming and
-**Complete for VoiceOver on Safari. NVDA is
-untouched — §9.4.** One defect was found and fixed; the arrow-key rows were re-confirmed against the
+(`grep -c 'tf-cta-ico'` → 6). Captured from the VoiceOver caption panel. **Complete for VoiceOver
+on Safari. NVDA is untouched — §9.4.** One defect was found and fixed; the arrow-key rows were re-confirmed against the
 fixed build.
 
 ### What was heard
