@@ -303,8 +303,11 @@ Control boundaries, focus rings and selected-state indicators.
 `SC 1.4.10, 1.4.4` · **Level AA**
 
 **400% zoom is `setDeviceMetricsOverride{ width:320, height:256, deviceScaleFactor:4 }`** — `dsf:1`
-is a different test. Content may scroll in **one** direction only; a keyboard-operable carousel is the
-permitted two-dimensional exception.
+is a different test. Content may scroll in **one** direction only. A keyboard-operable carousel that
+scrolls horizontally while fitting inside 320 CSS px on an otherwise vertically-scrolling page meets
+the base requirement directly (G225) — it is **not** an instance of the "requires two-dimensional
+layout for meaning" exception, which is reserved for maps/data-tables/meaningful indentation. Don't
+reach for that exception just because a component happens to scroll sideways.
 
 ---
 
@@ -417,10 +420,11 @@ announce(tile ? tiles.indexOf(tile) : i);
 axe `focus-order-semantics` reports it (`best-practice` + `experimental`, no WCAG criterion); 2.1.1 wins.
 Disclosed in `a11y-1-criteria.md`.
 
-**Reflow (D3) passes on the exception.** `scrollWidth == clientWidth == 320` at 320×256; tiles extend
-past the viewport inside `#tf-scroller` only — replace with a plain overflowing row and this becomes a
-failure. All 16 controls sit inside the viewport; the `focusin` handler (not `scroll-padding`) keeps
-them clear of sticky chrome.
+**Reflow (D3) passes on the base requirement, not an exception.** `scrollWidth == clientWidth == 320`
+at 320×256; tiles extend past the viewport inside `#tf-scroller` only, which itself fits within 320 CSS
+px on a vertically-scrolling page (G225) — replace `#tf-scroller` with a plain overflowing row (no
+internal scroll containment) and this becomes a failure. All 16 controls sit inside the viewport; the
+`focusin` handler (not `scroll-padding`) keeps them clear of sticky chrome.
 
 **Arrow keys step the carousel; focus must follow.** Stepping alone strands focus on a tile that has
 scrolled out of the porthole. The handler moves focus to the matching control in the next tile,

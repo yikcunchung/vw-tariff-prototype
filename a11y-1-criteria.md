@@ -70,7 +70,7 @@ end of this document.
 | **1.4.3** | Contrast (Minimum) | AA | Yes | ✅ Pass | **No `color-contrast` node in the incomplete bucket** at any viewport; ratio computed for every text node, none failed. |
 | **1.4.4** | Resize Text | AA | Yes | ✅ Pass | 400% zoom (320×256 @ dsf 4): no horizontal scroll, all 16 stops reachable, nothing clipped. |
 | **1.4.5** | Images of Text | AA | Yes | ✅ Pass* | No images of text. |
-| **1.4.10** | Reflow | AA | Yes | ✅ Pass | `scrollWidth 320 == clientWidth 320` at 320×256 @ dsf 4 — **no page-level horizontal scroll**. Tiles inside `#tf-scroller` — the permitted two-dimensional-content exception. All 20 controls reachable. |
+| **1.4.10** | Reflow | AA | Yes | ✅ Pass | `scrollWidth 320 == clientWidth 320` at 320×256 @ dsf 4 — **no page-level horizontal scroll**. `#tf-scroller` scrolls horizontally *within* an otherwise vertically-scrolling page and fits inside 320 CSS px — the base requirement is met directly (G225 sufficient technique), **not** the "requires two-dimensional layout for meaning" exception (that's reserved for maps/data-tables/meaningful indentation; a card carousel isn't 2D-layout-dependent and could reflow to a vertical stack without losing anything). All 16 controls reachable. |
 | **1.4.11** | Non-text Contrast | AA | Yes | ✅ Pass\* | Focus ring `#c86c03` — **3.75:1** on tile white, **3.44:1** on page cream. On a CTA hovered and focused at once: inner edge **2.04:1** against `#ccbdab`; outer edge **3.75:1** against the footer. Outer-edge passes; decision at end. |
 | **1.4.12** | Text Spacing | AA | Yes | ✅ Pass | Line-height 1.5, letter-spacing .12em, word-spacing .16em, paragraph 2em at 1440/390/320: **no clipped element, no lost control, no horizontal scroll.** Canary validated. |
 | **1.4.13** | Content on Hover or Focus | AA | No | ⚪ N/A | No hover- or focus-triggered content; accordions click-toggled. |
@@ -123,7 +123,7 @@ end of this document.
 |---|---|---|---|---|---|
 | **2.5.1** | Pointer Gestures | A | Yes | ✅ Pass* | No path-based gesture; prev/next buttons and native scroll. |
 | **2.5.2** | Pointer Cancellation | A | Yes | ✅ Pass* | Activation on the up-event; native `<button>` semantics throughout. |
-| **2.5.3** | Label in Name | A | Yes | ✅ Pass | All 15 controls: visible label verbatim and at the start of the accessible name. `Emission standard` → "Emission standard — We Charge Pro"; `PDF Download` → "PDF Download — We Charge Pro". |
+| **2.5.3** | Label in Name | A | Yes | ✅ Pass | All 13 controls that carry a visible label (7 accordions, 4 PDF CTAs, Imprint, skip-link) have it verbatim and at the start of the accessible name — prev/next are icon-only with no visible label, so 2.5.3 doesn't apply to them. `Emission standard` → "Emission standard — We Charge Pro"; `PDF Download` → "PDF Download — We Charge Pro". |
 | **2.5.4** | Motion Actuation | A | No | ⚪ N/A | No device-motion actuation. |
 | **2.5.7** | Dragging Movements | AA | No | ⚪ N/A | No dragging; buttons and native scroll. |
 | **2.5.8** | Target Size (Minimum) | AA | Yes | ✅ Pass | **No control under 24px at any viewport.** `.tf-acc-btn` 192×24; Imprint 44×24; prev/next 44×44; `.tf-cta` 296×44 at 1440, 192×56 at 320. axe `target-size`: **14 pass, 0 violations, 0 incomplete**. |

@@ -214,47 +214,42 @@ JAWS and VoiceOver differ in what they *announce*. No headless pass closes this.
 
 # 6. Manual testing — what to do
 
-This section is the reproducible procedure; §7 grades it. **Actions only, in the order you perform
-them. Write down what happened; grade it against §7 afterwards.**
+**The reusable procedure (Step 0, VoiceOver/WAVE/axe DevTools runs, sign-off checklist) now lives
+centrally** in `../audit-evidence/manual-testing-guide.md` — it's identical across all five sibling
+apps, so it's maintained once there instead of copied per app. What follows here is only what's
+specific to tariffs; §7 grades it against the central checklist plus the app-specific points below.
 
-## Step 0 — before any tool, every single run
+## App-specific Step 0
 
-1. Decide **live** (`https://yikcunchung.github.io/vw-tariff-prototype/`, verify: `curl -s <url> | grep -c 'tf-cta-ico'` → **6**) or **local** (`python3 -m http.server 7820`; hosted WAVE cannot reach localhost).
-2. **Confirm on screen:** four tiles, one PDF Download per tile, seven accordion headers, next arrow.
-3. **Set the window width deliberately and write it down.** 1 tile below 960, 2 at 960, 3 at 1280, 4 at 1600+ where both arrows disappear.
-4. **Write down:** browser + version, OS version, window size, date, live or local.
+- **Live** — `https://yikcunchung.github.io/vw-tariff-prototype/`. Freshness check:
+  `curl -s <url> | grep -c 'tf-cta-ico'` → expect **6**.
+- **Local** — `python3 -m http.server 7820` (hosted WAVE cannot reach localhost).
+- **Confirm on screen:** four tiles, one PDF Download per tile, seven accordion headers, next arrow.
+- **Set the window width deliberately and write it down** — this app's own breakpoints show 1 tile
+  below 960, 2 at 960, 3 at 1280, 4 at 1600+ (where both arrows disappear).
 
-## Run 1 — VoiceOver (macOS)
+## App-specific notes for the central procedure's Run 1 (VoiceOver)
 
-Safari first. `Cmd+F5` = VoiceOver on/off. `VO` = `Ctrl+Option`. Move: `VO+Right/Left`. Activate: `VO+Space`. Rotor: `VO+U`.
+- From the top, note the legal label ("An offer from Elli AG") and **Imprint** link before reaching
+  `#tf-scroller` — check whether its group name is spoken and whether the reader offers to enter.
+- **16 Tab stops** total.
+- At each PDF Download control: **all four names must differ**; confirm `Enter` starts the download.
+- Stepping the carousel (`ArrowRight`/`ArrowLeft`): note where focus lands and what `#tf-live` says,
+  one utterance per step, not two.
+- At **Show next/previous tariff**: confirm the arrow that becomes irrelevant at either end **leaves
+  the tab order entirely**.
+- Browsing a tile body: record whether `<dl>` term/definition pairs read coherently.
 
-1. `VO+Right` from the top. Note the legal label ("An offer from Elli AG") and **Imprint** link.
-2. Continue to `#tf-scroller`. Note whether group name is spoken and whether reader offers to enter.
-3. `Tab` through the whole page. **16 stops** — write name and role at each.
-4. At each **accordion** header: note name and **expanded / collapsed** state. `VO+Space`; note whether new state is announced without focus moving.
-5. At each **PDF Download** control: note full name **and role** (expect *"link"*). **All four names must differ.** Press `Enter`; confirm download starts.
-6. With focus inside a tile, `ArrowRight`. Note: (a) carousel steps, (b) where focus lands, (c) what `#tf-live` says. Walk to last tile; `ArrowLeft` back.
-7. **Count utterances per step.** One per change, not two.
-8. `Tab` to **Show next / previous tariff**. Confirm the arrow that becomes irrelevant **leaves the tab order entirely**.
-9. `VO+U` → **Form Controls** (full list), then **Headings**, then **Landmarks**.
-10. Browse a tile body `VO+Right`; record whether `<dl>` term/definition pairs read coherently.
+## App-specific notes for the central procedure's Run 2 (WAVE)
 
-## Run 2 — WAVE 3.3.1.0
+- Expand **all seven accordions** for the dynamic-state pass.
+- `.sr-only` contrast reports are the standard known artifact (1×1 clip, never rendered).
 
-1. Install the WAVE extension. Load the page. Do Step 0. Click the WAVE icon. Record all six counts: **Errors, Contrast, Alerts, Features, Structure, ARIA**.
-2. Turn WAVE off, **expand all seven accordions**, turn WAVE on. Record six counts again.
-3. Note `.sr-only` contrast reports — **known artifact** (1×1 clip, never rendered).
-4. Record the hosted run too (`wave.webaim.org/report#/<live-url>`). Poll until counts stop moving.
+## App-specific notes for the central procedure's Run 3 (axe DevTools)
 
-## Run 3 — axe DevTools
-
-1. Install axe DevTools extension. DevTools → **axe DevTools** tab. **Note the version.**
-2. ⚠️ **Set standard to WCAG 2.2 AA** — default may be 2.1 AA, which excludes all SC 2.2 criteria including **`target-size`** (SC 2.5.8).
-3. **Enable the default-off rules**, `target-size` above all.
-4. **Scan all of my page.** Expand all seven accordions. Scan again.
-5. Run **Interactive Elements** guided test — target size is covered here in current builds.
-
-> **Guided-test zeros are not passes** — an unrun test rolls up as clean. **axe cannot tell you:** SC 2.5.3 (no `label-in-name` rule), the SC 1.4.11 focus-ring decision, or 1.4.11 non-text contrast. `color-contrast` covers SC 1.4.3 text contrast only.
+- Expand all seven accordions before the dynamic-state scan.
+- **axe cannot tell you here:** SC 2.5.3 (no `label-in-name` rule), the SC 1.4.11 focus-ring
+  decision, or 1.4.11 non-text contrast (`color-contrast` covers SC 1.4.3 text contrast only).
 
 ---
 
@@ -264,8 +259,8 @@ Tick only what you observed. **An untested box is not a pass.**
 
 ## Run 1 — VoiceOver
 
-- [ ] **Step 2** — `#tf-scroller` announced as **group** named *"Charging tariffs, scrollable list of 4"*, reachable by `Tab`.
-- [ ] **Step 3 — 16 stops, in this order:**
+- [ ] **`#tf-scroller`** announced as **group** named *"Charging tariffs, scrollable list of 4"*, reachable by `Tab`.
+- [ ] **16 Tab stops, in this order:**
 
       | # | Control | Expected name | Role |
       |---|---|---|---|
@@ -277,8 +272,8 @@ Tick only what you observed. **An untested box is not a pass.**
       | 15 | `#tf-prev` | "Show previous tariff" | button |
       | 16 | `#tf-next` | "Show next tariff" | button |
 
-- [ ] **Step 4** — Every `.tf-acc-btn` speaks **expanded** or **collapsed**; toggling re-announces without moving focus.
-- [ ] **Step 5 — four PDF buttons distinguishable:**
+- [ ] **Accordions** — every `.tf-acc-btn` speaks **expanded** or **collapsed**; toggling re-announces without moving focus.
+- [ ] **Four PDF buttons distinguishable:**
 
       | Tile | Expected accessible name |
       |---|---|
@@ -287,11 +282,11 @@ Tick only what you observed. **An untested box is not a pass.**
       | 3 | "PDF Download — We Charge Plus" |
       | 4 | "PDF Download — We Charge Pro" |
 
-- [ ] **Step 5** — Visible string spoken **verbatim and first**, tier appended after (**append, never splice**).
-- [ ] **Step 6–7** — `ArrowRight/Left` step carousel; focus lands on the same kind of control in the adjacent tile. `#tf-live` speaks **once** per step.
-- [ ] **Step 8** — At first tile `#tf-prev` unreachable by `Tab` and rotor; at last tile, likewise `#tf-next`.
-- [ ] **Step 9** — PDFs under **Links** (not Form Controls); Links = 6, Form Controls = 7 accordions + live arrow. Headings: `h1 x1, h2 x4, h3` per accordion count, no level skipped. `#tf-dots` must not appear.
-- [ ] **Step 10** — `<dl>` term/definition pairs read coherently. Record the actual sequence.
+- [ ] **PDF names** — visible string spoken **verbatim and first**, tier appended after (**append, never splice**).
+- [ ] **Carousel stepping** — `ArrowRight/Left`; focus lands on the same kind of control in the adjacent tile. `#tf-live` speaks **once** per step.
+- [ ] **Prev/next at the ends** — at first tile `#tf-prev` unreachable by `Tab` and rotor; at last tile, likewise `#tf-next`.
+- [ ] **Rotor sweep** — PDFs under **Links** (not Form Controls); Links = 6, Form Controls = 7 accordions + live arrow. Headings: `h1 x1, h2 x4, h3` per accordion count, no level skipped. `#tf-dots` must not appear.
+- [ ] **Tile body** — `<dl>` term/definition pairs read coherently. Record the actual sequence.
 
 ## Run 2 — WAVE
 
@@ -320,26 +315,10 @@ Tick only what you observed. **An untested box is not a pass.**
 
 # 8. Re-running the automated suite
 
-```
-# 1. serve the build, then drive a real browser over CDP
-python3 -m http.server 7810 --bind 127.0.0.1
-chrome --headless=new --remote-debugging-port=9345 --disable-gpu
-#    pick the debug target by matching type == "page" AND the expected URL.
-#    NEVER take the first target from /json — it is often an extension page.
-
-# 2. Network.enable BEFORE Network.setCacheDisabled, or add ?cb=<nonce>
-# 3. axe.run(document, {rules:{'target-size':{enabled:true}, ...}})
-#    read violations AND incomplete; assert target-size lands in passes
-# 4. AX tree: Accessibility.getFullAXTree
-#      -> assert 0 role=image nodes that are unnamed and not ignored
-#      -> review every duplicate role+name pair
-# 5. Real keys: Input.dispatchKeyEvent, assert document.activeElement after each
-# 6. Reflow: Emulation.setDeviceMetricsOverride 320x256 @ dsf 4   (= 400% zoom)
-# 7. Text spacing: inject the four overrides, diff the clipped-element set,
-#    and prove a canary fires before believing the result
-# 8. WAVE: wave.webaim.org/report#/<public-url>, poll until counts are STABLE
-# 9. Diff local against live first — audit what is actually deployed
-```
+Identical across all five sibling apps — see `../audit-evidence/manual-testing-guide.md` for the
+CDP re-run script (serve locally, drive headless Chrome over the CDP protocol, run axe/AX-tree/
+reflow/text-spacing/WAVE checks, diff local against live). Substitute this app's own port and live
+URL where the script needs them.
 
 **Automate the structural half in CI, but do not mistake it for the whole.**
 
