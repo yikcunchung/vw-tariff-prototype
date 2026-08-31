@@ -138,8 +138,8 @@ this ticket.
 **The four PDF links** are placeholders. When real documents replace them, each needs to pass PAC
 (EN 301 549 clause 10, PDF/UA). Not in scope here.
 
-## One known failure, not yours to fix
+## No known failures
 
-The `<select>` border is `rgb(161,164,172)` — **2.29:1** against the page, where WCAG needs 3:1.
-It comes from the core component library, so it is being raised upstream. Do not darken it locally.
-(`#8b8e96` is the nearest passing shade if anyone asks.)
+Tariffs has no `<select>`, so it never carried the core Select-border contrast issue that the
+other four sibling apps deliberately darken (`rgb(110,116,126)` in place of the core's failing
+`rgb(161,164,172)`) — see any sibling app's README for that policy.
