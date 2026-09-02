@@ -94,7 +94,7 @@ This app uses `<img>` for every icon, not inline `<svg>` — so `alt=""` is this
 rule applies as `aria-hidden="true"` / `role="img" aria-label="…"`. The three sibling simulators
 shipped this exact defect as 16, 9 and 7 unnamed graphics — axe, WAVE and Nu all reported clean on
 every one, because a bare `<svg>` maps to `role=image` with an empty name and none of those tools
-flag an empty name as an error. A1 in `a11y-3-implementation.md` is the rule; the accessibility-tree
+flag an empty name as an error. SC 1.1.1 in `a11y-3-implementation.md` is the rule; the accessibility-tree
 assertion in the Definition of Done is what proves it.
 
 ---

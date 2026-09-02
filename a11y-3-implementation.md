@@ -36,21 +36,9 @@ cost-simulator **9**, charging-time **7** — axe, WAVE and Nu clean on every on
 ---
 # 1. Semantics and naming
 
-| Rule | Requirement | SC |
-|---|---|---|
-| **A1** | Every inline `<svg>` is named or `aria-hidden` | 1.1.1 |
-| **A2** | An icon-only control has a real accessible name | 4.1.2 |
-| **A3** | A `<select>` is named by its visible label | 1.3.1, 4.1.2 |
-| **A4** | The visible label sits inside the accessible name, verbatim and first | 2.5.3 |
-| **A5** | One `h1`, no skipped levels, real landmarks | 1.3.1, 2.4.6 |
-| **A7** | `lang` on the document, and on any passage that differs | 3.1.1, 3.1.2 |
-| **A8** | A disclosure hides its panel from the accessibility tree, not just from view | 1.3.1, 4.1.2 |
+### SC 1.1.1 — Every inline `<svg>` is either named or hidden
 
----
-
-### A1 — Every inline `<svg>` is either named or hidden
-
-`SC 1.1.1` · **Level A**
+**Level A**
 
 Chrome maps a bare `<svg>` to `role=image`, `name=""`, `ignored=false` — not decorative by default.
 No scanner catches this. Assert `0` unnamed `role=image` nodes; put the fix in the icon component:
@@ -74,25 +62,25 @@ export const Icon = ({ label, ...p }) =>
 
 ---
 
-### A2 — An icon-only control needs a real name, not a hidden one
+### SC 4.1.2, 2.4.4 — An icon-only control needs a real name, not a hidden one
 
-`SC 4.1.2, 2.4.4` · **Level A**
+**Level A**
 
 `aria-label` on the focusable control; the icon inside it is `aria-hidden`.
 
 ---
 
-### A3 — A `<select>` is named by its visible label
+### SC 1.3.1, 4.1.2 — A `<select>` is named by its visible label
 
-`SC 1.3.1, 4.1.2` · **Level A**
+**Level A**
 
-Use `aria-labelledby` pointing at the visible label, not a retyped `aria-label` (see A4). `<option>` text is not the label.
+Use `aria-labelledby` pointing at the visible label, not a retyped `aria-label` (see SC 2.5.3). `<option>` text is not the label.
 
 ---
 
-### A4 — The visible label sits inside the accessible name
+### SC 2.5.3 — The visible label sits inside the accessible name
 
-`SC 2.5.3` · **Level A**
+**Level A**
 
 The accessible name must **contain the visible text, contiguously**. No tool checks this; verify by hand.
 
@@ -104,25 +92,25 @@ The accessible name must **contain the visible text, contiguously**. No tool che
 
 ---
 
-### A5 — One `h1`, no skipped levels, real landmarks
+### SC 1.3.1, 2.4.1, 2.4.6 — One `h1`, no skipped levels, real landmarks
 
-`SC 1.3.1, 2.4.1, 2.4.6` · **Level A / AA**
+**Level A / AA**
 
 One `h1`; levels descend without gaps; `role="banner"` on the topbar, a `<main>`, and a skip link as the **first** tab stop.
 
 ---
 
-### A7 — `lang` on the document, and on any passage that differs
+### SC 3.1.1, 3.1.2 — `lang` on the document, and on any passage that differs
 
-`SC 3.1.1, 3.1.2` · **Level A / AA**
+**Level A / AA**
 
 `<html lang="en">`. Components rendering CMS text in another language must emit `lang` alongside it.
 
 ---
 
-### A8 — A disclosure hides its panel from the accessibility tree, not just from view
+### SC 1.3.1, 4.1.2 — A disclosure hides its panel from the accessibility tree, not just from view
 
-`SC 1.3.1, 4.1.2` · **Level A**
+**Level A**
 
 ```html
 <h3>
@@ -136,30 +124,18 @@ Use the **`hidden` attribute** — not `display:none` in a stylesheet, not `aria
 ---
 # 2. Keyboard and focus
 
-| Rule | Requirement | SC |
-|---|---|---|
-| **B1** | Everything the mouse can do, the keyboard can do | 2.1.1 |
-| **B2** | A custom widget exposes role, name **and** value, on every path | 4.1.2 |
-| **B3** | Focus order matches visual order; hidden controls leave the tab order | 2.4.3 |
-| **B4** | One visible focus indicator on every control, styled consistently | 2.4.7, 1.4.11 |
-| **B5** | A focused control is never left under sticky chrome | 2.4.11 |
-| **B6** | No keyboard trap | 2.1.2 |
-| **B7** | A scrollable region is keyboard reachable | 2.1.1 |
+### SC 2.1.1 — Everything the mouse can do, the keyboard can do
 
----
-
-### B1 — Everything the mouse can do, the keyboard can do
-
-`SC 2.1.1` · **Level A**
+**Level A**
 
 Every custom control needs an explicit key handler. Assert the **state change**, not just that the
 handler fired.
 
 ---
 
-### B2 — A custom widget exposes role, name **and** value, on every path
+### SC 4.1.2 — A custom widget exposes role, name **and** value, on every path
 
-`SC 4.1.2` · **Level A**
+**Level A**
 
 **Derive ARIA from state on every path** — keyboard, drag, click-on-track. In React: `aria-valuenow={value}`.
 
@@ -174,17 +150,17 @@ handler fired.
 
 ---
 
-### B3 — Focus order matches visual order
+### SC 2.4.3 — Focus order matches visual order
 
-`SC 2.4.3` · **Level A**
+**Level A**
 
 Drive real `Tab` and assert `document.activeElement` at each stop; a control repositioned with CSS `order` must also move in the DOM.
 
 ---
 
-### B4 — A visible focus indicator on every control, styled consistently
+### SC 2.4.7 — A visible focus indicator on every control, styled consistently
 
-`SC 2.4.7` · **Level AA**
+**Level AA**
 
 `:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 0; }` where `--focus-ring` is `#c86c03`. One base rule covers **every** focusable thing; pin `outline-offset: 0` — Chrome's UA sheet puts `1px` on links. For a visually hidden `<input>` behind a styled surrogate:
 
@@ -197,25 +173,25 @@ Drive real `Tab` and assert `document.activeElement` at each stop; a control rep
 
 ---
 
-### B5 — A focused control is never left under sticky chrome
+### SC 2.4.11 — A focused control is never left under sticky chrome
 
-`SC 2.4.11` · **Level AA**
+**Level AA**
 
 `scroll-padding` equal to fixed-bar height, or a `focusin` handler; measure after the scroll settles, not synchronously after `.focus()`.
 
 ---
 
-### B6 — No keyboard trap
+### SC 2.1.2 — No keyboard trap
 
-`SC 2.1.2` · **Level A**
+**Level A**
 
 Tab must cycle through every stop and out. Any panel must be escapable.
 
 ---
 
-### B7 — A scrollable region is keyboard reachable
+### SC 2.1.1 — A scrollable region is keyboard reachable
 
-`SC 2.1.1` · **Level A** (ACT rule `0ssw9k`)
+**Level A** (ACT rule `0ssw9k`)
 
 `tabindex="0"` plus `role="group"` and an accessible name. axe `focus-order-semantics` flags this as
 `best-practice` + `experimental` with no `wcag2*` tag. **Keep the `tabindex`** — 2.1.1 wins.
@@ -223,17 +199,9 @@ Tab must cycle through every stop and out. Any panel must be escapable.
 ---
 # 3. Pointer and targets
 
-| Rule | Requirement | SC |
-|---|---|---|
-| **C1** | Every target is at least 24×24 CSS px | 2.5.8 |
-| **C2** | Activation happens on the up-event | 2.5.2 |
-| **C3** | Dragging always has a non-drag alternative | 2.5.7 |
+### SC 2.5.8 — Every target is at least 24×24 CSS px
 
----
-
-### C1 — Every target is at least 24×24 CSS px
-
-`SC 2.5.8` · **Level AA**
+**Level AA**
 
 `target-size` is `enabled: false` in axe-core 4.13.0 — enable explicitly:
 `axe.run(el, { rules: { 'target-size': { enabled: true } } })`.
@@ -255,52 +223,42 @@ neighbour is the wrong test.
 
 ---
 
-### C2 — Activation happens on the up-event
+### SC 2.5.2 — Activation happens on the up-event
 
-`SC 2.5.2` · **Level A**
+**Level A**
 
 Native `<button>` gets this free. Custom controls fire on `pointerup`/`click`, never `pointerdown`.
 
 ---
 
-### C3 — Dragging always has a non-drag alternative
+### SC 2.5.7 — Dragging always has a non-drag alternative
 
-`SC 2.5.7` · **Level AA**
+**Level AA**
 
 Arrow keys alone satisfy this criterion for a draggable slider.
 
 ---
 # 4. Visual
 
-| Rule | Requirement | SC |
-|---|---|---|
-| **D1** | Text contrast ≥4.5:1, measured on composited pixels | 1.4.3 |
-| **D2** | Non-text contrast ≥3:1 | 1.4.11 |
-| **D3** | No content loss at 320×256 CSS px | 1.4.10, 1.4.4 |
-| **D4** | The text-spacing overrides must not clip anything | 1.4.12 |
-| **D5** | Never lock orientation | 1.3.4 |
+### SC 1.4.3 — Text contrast ≥4.5:1, measured on composited pixels
 
----
-
-### D1 — Text contrast ≥4.5:1, measured on composited pixels
-
-`SC 1.4.3` · **Level AA**
+**Level AA**
 
 Over a gradient or image, axe returns **`incomplete`** — resolve by hand. Use viewport-relative coordinates (`getBoundingClientRect()`), not document-absolute `clip`. Crop to the **glyph band** (`Range.getClientRects()` over text nodes) to exclude borders. Take the **dominant** background pixel, not the worst minority.
 
 ---
 
-### D2 — Non-text contrast ≥3:1
+### SC 1.4.11 — Non-text contrast ≥3:1
 
-`SC 1.4.11` · **Level AA**
+**Level AA**
 
 Control boundaries, focus rings and selected-state indicators.
 
 ---
 
-### D3 — No content loss at 320×256 CSS px
+### SC 1.4.10, 1.4.4 — No content loss at 320×256 CSS px
 
-`SC 1.4.10, 1.4.4` · **Level AA**
+**Level AA**
 
 **400% zoom is `setDeviceMetricsOverride{ width:320, height:256, deviceScaleFactor:4 }`** — `dsf:1`
 is a different test. Content may scroll in **one** direction only. A keyboard-operable carousel that
@@ -311,9 +269,9 @@ reach for that exception just because a component happens to scroll sideways.
 
 ---
 
-### D4 — The text-spacing overrides must not clip anything
+### SC 1.4.12 — The text-spacing overrides must not clip anything
 
-`SC 1.4.12` · **Level AA**
+**Level AA**
 
 ```css
 * { line-height:1.5 !important; letter-spacing:.12em !important; word-spacing:.16em !important; }
@@ -325,24 +283,18 @@ p { margin-bottom:2em !important; }
 
 ---
 
-### D5 — Never lock orientation
+### SC 1.3.4 — Never lock orientation
 
-`SC 1.3.4` · **Level AA**
+**Level AA**
 
 No `@media (orientation:)` rule that hides or restricts content.
 
 ---
 # 5. Announcements
 
-| Rule | Requirement | SC |
-|---|---|---|
-| **A6** | One writer owns a visually hidden polite region; it announces what **focus** is on, and it speaks even when nothing scrolled | 4.1.3 |
+### SC 4.1.3 — A visually hidden polite live region, updated on every path
 
----
-
-### A6 — A visually hidden polite live region, updated on every path
-
-`SC 4.1.3` · **Level AA**
+**Level AA**
 
 ```html
 <p id="tf-live" class="sr-only" aria-live="polite"></p>
@@ -408,7 +360,7 @@ announce(tile ? tiles.indexOf(tile) : i);
   BITV / EN 301 549 audit will not accept VoiceOver evidence for that line item.
 - **The per-node selectors for the three axe DevTools Pro findings have not been captured.** All three
   are attributed to the topbar; if any resolves inside `#tf-main`, `a11y-2` §9.3 changes.
-- **The topbar is not implemented.** When built, A2, B1 and C1 apply; the three Pro findings become live.
+- **The topbar is not implemented.** When built, SC 4.1.2, 2.4.4 (icon-only control naming), SC 2.1.1 ("Everything the mouse can do, the keyboard can do") and SC 2.5.8 (target size) apply; the three Pro findings become live.
 - **The four linked PDFs are placeholders.** Real documents become a conformance surface under
   **EN 301 549 clause 10**; each needs a **PAC 26.1.0.0** pass.
 
@@ -420,7 +372,7 @@ announce(tile ? tiles.indexOf(tile) : i);
 axe `focus-order-semantics` reports it (`best-practice` + `experimental`, no WCAG criterion); 2.1.1 wins.
 Disclosed in `a11y-1-criteria.md`.
 
-**Reflow (D3) passes on the base requirement, not an exception.** `scrollWidth == clientWidth == 320`
+**Reflow (SC 1.4.10, 1.4.4) passes on the base requirement, not an exception.** `scrollWidth == clientWidth == 320`
 at 320×256; tiles extend past the viewport inside `#tf-scroller` only, which itself fits within 320 CSS
 px on a vertically-scrolling page (G225) — replace `#tf-scroller` with a plain overflowing row (no
 internal scroll containment) and this becomes a failure. All 16 controls sit inside the viewport; the
